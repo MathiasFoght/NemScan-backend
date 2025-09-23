@@ -1,0 +1,6 @@
+@NemScan_API_HostAddress = http://localhost:5117
+
+GET {{NemScan_API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -43,4 +43,5 @@ appsettings.*.local.json
 appsettings.Local.json
 appsettings.Development.local.json
 
+nemscan-api.sln
 

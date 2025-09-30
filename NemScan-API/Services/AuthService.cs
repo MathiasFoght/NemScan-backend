@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace NemScan_API.Services
 {
@@ -35,7 +31,6 @@ namespace NemScan_API.Services
 
             var responseString = await response.Content.ReadAsStringAsync();
             Console.WriteLine("StatusCode: " + response.StatusCode);
-            Console.WriteLine("ResponseBody: " + responseString);
 
             if (!response.IsSuccessStatusCode) return null;
 

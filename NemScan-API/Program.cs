@@ -1,13 +1,16 @@
+using NemScan_API.Services;
+using Microsoft.Extensions.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<AuthService>();
+builder.Services.Configure<AmeroApiOptions>(builder.Configuration.GetSection("AmeroApi"));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -22,19 +25,32 @@ var summaries = new[]
 };
 
 app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+{
+    var forecast = Enumerable.Range(1, 5).Select(index =>
+            new WeatherForecast
+            (
+                DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                Random.Shared.Next(-20, 55),
+                summaries[Random.Shared.Next(summaries.Length)]
+            ))
+        .ToArray();
+    return forecast;
+})
+.WithName("GetWeatherForecast")
+.WithOpenApi();
+
+app.MapGet("/api/test/token", async (AuthService authService, IOptions<AmeroApiOptions> options) =>
+{
+    var token = await authService.GetAccessTokenAsync(
+        options.Value.ClientId,
+        options.Value.ClientSecret
+    );
+
+    if (token == null) return Results.BadRequest("Kunne ikke hente token.");
+    return Results.Ok(new { token });
+})
+.WithName("GetToken")
+.WithOpenApi();
 
 app.Run();
 

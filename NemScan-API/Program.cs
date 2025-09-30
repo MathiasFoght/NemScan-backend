@@ -8,6 +8,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.Configure<AmeroApiOptions>(builder.Configuration.GetSection("AmeroApi"));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ProductService>();
 
 var app = builder.Build();
 
@@ -50,6 +51,23 @@ app.MapGet("/api/test/token", async (AuthService authService, IOptions<AmeroApiO
     return Results.Ok(new { token });
 })
 .WithName("GetToken")
+.WithOpenApi();
+
+app.MapGet("/api/product/{productUid}", async (
+    string productUid,
+    ProductService productService,
+    IOptions<AmeroApiOptions> options) =>
+{
+    var product = await productService.GetProductAsync(
+        productUid,
+        options.Value.ClientId,
+        options.Value.ClientSecret
+    );
+
+    if (product == null) return Results.NotFound("Produkt ikke fundet.");
+    return Results.Ok(product);
+})
+.WithName("GetProduct")
 .WithOpenApi();
 
 app.Run();

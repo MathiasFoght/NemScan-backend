@@ -11,10 +11,10 @@ builder.Services.AddJwtAuth(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
 
 if (builder.Environment.IsDevelopment())
 {
-    // For at kunne teste mobilapp lokalt på et fysisk device
     builder.WebHost.UseUrls("http://0.0.0.0:5117");
 }
 
@@ -29,6 +29,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapHealthChecks("/health");
+app.MapGet("/", () => "NemScan API is running");
 app.MapControllers();
 app.Run();

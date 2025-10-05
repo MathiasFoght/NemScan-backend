@@ -1,38 +1,21 @@
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using NemScan_API.Interfaces;
+using NemScan_API.Models;
+using NemScan_API.Utils;
 
 namespace NemScan_API.Services;
 
-public class AuthService
+public class AuthService : IAuthService
 {
-    private readonly HttpClient _httpClient;
+    private readonly NemScanDbContext _db;
 
-    public AuthService(HttpClient httpClient)
+    public AuthService(NemScanDbContext db)
     {
-        _httpClient = httpClient;
+        _db = db;
     }
 
-    public async Task<string?> GetAccessTokenAsync(string clientId, string clientSecret)
+    public async Task<User?> AuthenticateEmployeeAsync(string employeeNumber)
     {
-        var url = "https://auth.flexpos.com/api/v2/auth/login?audience=https://api.flexpos.com";
-
-        var request = new HttpRequestMessage(HttpMethod.Post, url);
-        var authHeader = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authHeader);
-
-        var formData = new Dictionary<string, string>
-        {
-            { "scope", "product:read" }
-        };
-        request.Content = new FormUrlEncodedContent(formData);
-
-        var response = await _httpClient.SendAsync(request);
-        var content = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode) return null;
-
-        using var doc = JsonDocument.Parse(content);
-        return doc.RootElement.GetProperty("access_token").GetString();
+        return await _db.Users.FirstOrDefaultAsync(u => u.EmployeeNumber == employeeNumber);
     }
 }

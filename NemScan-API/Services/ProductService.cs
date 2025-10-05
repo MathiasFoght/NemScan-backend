@@ -15,7 +15,7 @@ public class ProductService
         _authService = authService;
     }
 
-    public async Task<Product?> GetProductAsync(string productUid, string clientId, string clientSecret)
+  /*   public async Task<Product?> GetProductAsync(string productUid, string clientId, string clientSecret)
     {
         var token = await _authService.GetAccessTokenAsync(clientId, clientSecret);
         if (token == null) return null;
@@ -32,5 +32,5 @@ public class ProductService
         {
             PropertyNameCaseInsensitive = true
         });
-    }
+    } */
 }

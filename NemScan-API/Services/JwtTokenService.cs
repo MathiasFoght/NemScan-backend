@@ -18,14 +18,14 @@ public class JwtTokenService : IJwtTokenService
         _options = options.Value;
     }
 
-    public string GenerateEmployeeToken(User user)
+    public string GenerateEmployeeToken(Employee employee)
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim("employeeNumber", user.EmployeeNumber),
-            new Claim("name", user.Name),
-            new Claim("role", user.Role.ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, employee.Id.ToString()),
+            new Claim("employeeNumber", employee.EmployeeNumber),
+            new Claim("name", employee.Name),
+            new Claim("role", employee.Role.ToString()),
             new Claim("userType", "employee")
         };
         

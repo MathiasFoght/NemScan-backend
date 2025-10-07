@@ -14,7 +14,7 @@ public class AuthService : IAuthService
         _db = db;
     }
 
-    public async Task<User?> AuthenticateEmployeeAsync(string employeeNumber)
+    public async Task<Employee?> AuthenticateEmployeeAsync(string employeeNumber)
     {
         return await _db.Users.FirstOrDefaultAsync(u => u.EmployeeNumber == employeeNumber);
     }

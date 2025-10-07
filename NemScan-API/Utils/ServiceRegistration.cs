@@ -12,12 +12,14 @@ public static class ServiceRegistration
         services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
         services.Configure<AmeroAuthConfig>(configuration.GetSection("AmeroAuth"));
         
-        var connectionString = configuration["POSTGRES_CONNECTION"];
+        var connectionString = configuration["AZURE_POSTGRES_CONNECTION"];
         services.AddDbContext<NemScanDbContext>(options => options.UseNpgsql(connectionString));
 
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         
         services.AddHttpClient<IAmeroAuthService, AmeroAuthService>();
+        
+        services.AddSingleton<EmployeeProfileService>();
     }
 }

@@ -4,5 +4,5 @@ namespace NemScan_API.Interfaces;
 
 public interface IAuthService
 {
-    Task<User?> AuthenticateEmployeeAsync(string employeeNumber);
+    Task<Employee?> AuthenticateEmployeeAsync(string employeeNumber);
 }

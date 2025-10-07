@@ -4,6 +4,6 @@ namespace NemScan_API.Interfaces;
 
 public interface IJwtTokenService
 {
-    string GenerateEmployeeToken(User user);
+    string GenerateEmployeeToken(Employee employee);
     string GenerateCustomerToken(Customer customer); 
 }

@@ -35,16 +35,17 @@ public class AuthController : ControllerBase
         
         var token = _jwtTokenService.GenerateEmployeeToken(user);
 
-        var userDto = new UserDTO
+        var userDto = new EmployeeLoginDTO
         {
             EmployeeNumber = user.EmployeeNumber,
             Name = user.Name,
-            Role = user.Role.ToString()
+            Role = user.Role.ToString(),
+            StoreNumber = user.StoreNumber,
         };
 
         return Ok(new
         {
-            User = userDto,
+            Employee = userDto,
             Token = token,
         });
     }
@@ -57,7 +58,7 @@ public class AuthController : ControllerBase
             return BadRequest("Device id is required.");
         var customer = new Customer
         {
-            DeviceId = request.DeviceId
+            DeviceId = request.DeviceId,
         };
 
         var token = _jwtTokenService.GenerateCustomerToken(customer);

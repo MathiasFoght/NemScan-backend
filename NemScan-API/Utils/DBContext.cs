@@ -7,5 +7,5 @@ public class NemScanDbContext : DbContext
 {
     public NemScanDbContext(DbContextOptions<NemScanDbContext> options) : base(options) {}
 
-    public DbSet<User> Users { get; set; }
+    public DbSet<Employee> Users { get; set; }
 }

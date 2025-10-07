@@ -70,6 +70,7 @@ public class EmployeeController : ControllerBase
             EmployeeNumber = user.EmployeeNumber,
             Name = user.Name,
             Role = user.Role.ToString(),
+            Position = user.Position.ToString(),
             StoreNumber = user.StoreNumber,
             ProfileImageUrl = user.ProfileImageUrl,
         };

@@ -13,7 +13,7 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IJwtTokenService _jwtTokenService;
-    public record CustomerTokenRequest(string? DeviceId);
+    public record CustomerTokenRequest(string DeviceId);
     public record LoginRequest(string EmployeeNumber);
 
     public AuthController(IAuthService authService, IJwtTokenService jwtTokenService)
@@ -33,6 +33,9 @@ public class AuthController : ControllerBase
         if (user == null)
             return Unauthorized();
         
+        if (!user.IsValidPosition())
+            return BadRequest("Invalid role/position combination.");
+        
         var token = _jwtTokenService.GenerateEmployeeToken(user);
 
         var userDto = new EmployeeLoginDTO
@@ -40,6 +43,7 @@ public class AuthController : ControllerBase
             EmployeeNumber = user.EmployeeNumber,
             Name = user.Name,
             Role = user.Role.ToString(),
+            Position = user.Position.ToString(),
             StoreNumber = user.StoreNumber,
         };
 

@@ -9,13 +9,16 @@ public class ProductController : ControllerBase
 {
     private readonly IProductCustomerService _customerService;
     private readonly IProductEmployeeService _employeeService;
+    private readonly IProductImageService _productImageService;
 
     public ProductController(
         IProductCustomerService customerService,
-        IProductEmployeeService employeeService)
+        IProductEmployeeService employeeService,
+        IProductImageService productImageService)
     {
         _customerService = customerService;
         _employeeService = employeeService;
+        _productImageService = productImageService;
     }
 
     [HttpGet("customer/{productUid}")]
@@ -37,4 +40,16 @@ public class ProductController : ControllerBase
 
         return Ok(product);
     }
+
+    [HttpGet("image/{productUid}")]
+    public async Task<IActionResult> GetProductImage(Guid productUid)
+    {
+        var image = await _productImageService.GetProductImageAsync(productUid);
+        if (image == null)
+            return NotFound("Produktbillede ikke fundet.");
+
+        return Ok(image);
+    }
+
+
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NemScan_API.Config;
 using NemScan_API.Interfaces;
 using NemScan_API.Services;
+using NemScan_API.Services.Product;
 
 namespace NemScan_API.Utils;
 
@@ -22,5 +23,6 @@ public static class ServiceRegistration
 
         services.AddScoped<IProductCustomerService, ProductCustomerService>();
         services.AddScoped<IProductEmployeeService, ProductEmployeeService>();
+        services.AddHttpClient<IProductImageService, ProductImageService>();
     }
 }

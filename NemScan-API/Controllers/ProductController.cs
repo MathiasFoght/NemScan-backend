@@ -21,7 +21,7 @@ public class ProductController : ControllerBase
         _productImageService = productImageService;
     }
 
-    [HttpGet("customer/barcode/{barcode}")]
+    [HttpGet("customer/by-barcode/{barcode}")]
     public async Task<IActionResult> GetProductForCustomer(string barcode)
     {
         var product = await _customerService.GetProductByBarcodeAsync(barcode);
@@ -31,7 +31,7 @@ public class ProductController : ControllerBase
         return Ok(product);
     }
 
-    [HttpGet("employee/barcode/{barcode}")]
+    [HttpGet("employee/by-barcode/{barcode}")]
     public async Task<IActionResult> GetProductForEmployee(string barcode)
     {
         var product = await _employeeService.GetProductByBarcodeAsync(barcode);
@@ -41,13 +41,17 @@ public class ProductController : ControllerBase
         return Ok(product);
     }
 
-    [HttpGet("image/{productUid}")]
-    public async Task<IActionResult> GetProductImage(Guid productUid)
+    [HttpGet("image/by-barcode/{barcode}")]
+    public async Task<IActionResult> GetProductImageByBarcode(string barcode)
     {
-        var image = await _productImageService.GetProductImageAsync(productUid);
-        if (image == null)
+        var product = await _customerService.GetProductByBarcodeAsync(barcode);
+        if (product == null)
+            return NotFound("Produkt ikke fundet for den angivne barcode.");
+
+        var imageUrl = await _productImageService.GetProductImageAsync(product.Uid);
+        if (imageUrl == null)
             return NotFound("Produktbillede ikke fundet.");
 
-        return Ok(image);
+        return Ok(imageUrl);
     }
 }

@@ -1,44 +1,35 @@
 using System.Net.Http.Headers;
-using System.Text.Json;
 using NemScan_API.Interfaces;
-using NemScan_API.Models.DTO.Product;
 
-namespace NemScan_API.Services.Product;
-
-public class ProductImageService : IProductImageService
+namespace NemScan_API.Services.Product
 {
-    private readonly IAmeroAuthService _ameroAuthService;
-    private readonly HttpClient _httpClient;
-
-    public ProductImageService(IAmeroAuthService ameroAuthService, HttpClient httpClient)
+    public class ProductImageService : IProductImageService
     {
-        _ameroAuthService = ameroAuthService;
-        _httpClient = httpClient;
-    }
+        private readonly HttpClient _httpClient;
+        private readonly IAmeroAuthService _ameroAuthService;
 
-    public async Task<ProductImage?> GetProductImageAsync(Guid productUid)
-    {
-        var token = await _ameroAuthService.GetAccessTokenAsync();
-
-        var request = new HttpRequestMessage(
-            HttpMethod.Get,
-            $"https://api.flexpos.com/api/v1.0/product-image/get-file-from-bucket?productUid={productUid}"
-        );
-
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        request.Headers.Accept.ParseAdd("text/plain");
-
-        var response = await _httpClient.SendAsync(request);
-        if (!response.IsSuccessStatusCode)
-            return null;
-
-        var imageUrl = await response.Content.ReadAsStringAsync();
-
-        return new ProductImage
+        public ProductImageService(HttpClient httpClient, IAmeroAuthService ameroAuthService)
         {
-            ProductUid = productUid,
-            ImageUrl = imageUrl
-        };
-    }
+            _httpClient = httpClient;
+            _ameroAuthService = ameroAuthService;
+        }
 
+        public async Task<string?> GetProductImageAsync(Guid productUid)
+        {
+            var token = await _ameroAuthService.GetAccessTokenAsync();
+
+            var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"https://api.flexpos.com/api/v1.0/product-image/get-file-from-bucket?productUid={productUid}"
+            );
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var imageUrl = await response.Content.ReadAsStringAsync();
+            return string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+        }
+    }
 }

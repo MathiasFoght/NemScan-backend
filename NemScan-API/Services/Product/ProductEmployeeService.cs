@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
-using NemScan_API.Models.DTO.Products;
+using NemScan_API.Models.DTO.Product;
 using NemScan_API.Interfaces;
 
 namespace NemScan_API.Services;
@@ -16,7 +16,7 @@ public class ProductEmployeeService : IProductEmployeeService
         _httpClient = httpClient;
     }
 
-    public async Task<EmployeeDTO?> GetProductAsync(Guid productUid)
+    public async Task<ProductForEmployee?> GetProductAsync(Guid productUid)
     {
         var token = await _ameroAuthService.GetAccessTokenAsync();
 
@@ -36,7 +36,7 @@ public class ProductEmployeeService : IProductEmployeeService
         using var doc = JsonDocument.Parse(content);
         var root = doc.RootElement;
 
-        return new EmployeeDTO
+        return new ProductForEmployee
         {
             ClientUid = root.GetProperty("ClientUid").GetGuid(),
             Uid = root.GetProperty("Uid").GetGuid(),

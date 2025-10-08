@@ -3,50 +3,65 @@ using System.Text.Json;
 using NemScan_API.Interfaces;
 using NemScan_API.Models.DTO.Product;
 
-namespace NemScan_API.Services;
-
-public class ProductCustomerService : IProductCustomerService
+namespace NemScan_API.Services.Product
 {
-    private readonly IAmeroAuthService _ameroAuthService;
-    private readonly HttpClient _httpClient;
-
-    public ProductCustomerService(IAmeroAuthService ameroAuthService, HttpClient httpClient)
+    public class ProductCustomerService : IProductCustomerService
     {
-        _ameroAuthService = ameroAuthService;
-        _httpClient = httpClient;
+        private readonly HttpClient _httpClient;
+        private readonly IAmeroAuthService _ameroAuthService;
+
+        public ProductCustomerService(HttpClient httpClient, IAmeroAuthService ameroAuthService)
+        {
+            _httpClient = httpClient;
+            _ameroAuthService = ameroAuthService;
+        }
+
+        public async Task<ProductForCustomer?> GetProductByBarcodeAsync(string barcode)
+        {
+            var token = await _ameroAuthService.GetAccessTokenAsync();
+
+            // Step 1: Find ProductUid ud fra barcode
+            var barcodeRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"https://api.flexpos.com/api/v1.0/barcode?filters[Value][$eq]={barcode}"
+            );
+            barcodeRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var barcodeResponse = await _httpClient.SendAsync(barcodeRequest);
+            if (!barcodeResponse.IsSuccessStatusCode)
+                return null;
+
+            var barcodeContent = await barcodeResponse.Content.ReadAsStringAsync();
+            using var barcodeDoc = JsonDocument.Parse(barcodeContent);
+
+            var items = barcodeDoc.RootElement.GetProperty("Items");
+            if (items.GetArrayLength() == 0)
+                return null;
+
+            var productUid = items[0].GetProperty("ProductUid").GetGuid();
+
+            // Step 2: Hent produktdata
+            var productRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"https://api.flexpos.com/api/v1.0/product/{productUid}"
+            );
+            productRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var productResponse = await _httpClient.SendAsync(productRequest);
+            if (!productResponse.IsSuccessStatusCode)
+                return null;
+
+            var productContent = await productResponse.Content.ReadAsStringAsync();
+            using var productDoc = JsonDocument.Parse(productContent);
+            var root = productDoc.RootElement;
+
+            return new ProductForCustomer
+            {
+                ClientUid = root.GetProperty("ClientUid").GetGuid(),
+                Uid = root.GetProperty("Uid").GetGuid(),
+                Number = root.GetProperty("Number").GetString() ?? "",
+                Name = root.GetProperty("Name").GetString() ?? ""
+            };
+        }
     }
-
-    public async Task<ProductForCustomer?> GetProductAsync(Guid productUid)
-{
-    var token = await _ameroAuthService.GetAccessTokenAsync();
-
-    var request = new HttpRequestMessage(
-    HttpMethod.Get,
-    $"https://api.flexpos.com/api/v1/product/{productUid}" 
-);
-
-
-    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-    var response = await _httpClient.SendAsync(request);
-
-    var content = await response.Content.ReadAsStringAsync();
-    Console.WriteLine($"Status: {response.StatusCode}");
-    Console.WriteLine($"Content: {content}");
-
-    if (!response.IsSuccessStatusCode)
-        return null;
-
-    using var doc = JsonDocument.Parse(content);
-    var root = doc.RootElement;
-
-    return new ProductForCustomer
-    {
-        ClientUid = root.GetProperty("ClientUid").GetGuid(),
-        Uid = root.GetProperty("Uid").GetGuid(),
-        Number = root.GetProperty("Number").GetString() ?? "",
-        Name = root.GetProperty("Name").GetString() ?? ""
-    };
-}
-
 }

@@ -1,8 +1,9 @@
-namespace NemScan_API.Interfaces;
-
 using NemScan_API.Models.DTO.Product;
 
-public interface IProductEmployeeService
+namespace NemScan_API.Interfaces
 {
-    Task<ProductForEmployee?> GetProductAsync(Guid productUid);
+    public interface IProductEmployeeService
+    {
+        Task<ProductForEmployee?> GetProductByBarcodeAsync(string barcode);
+    }
 }

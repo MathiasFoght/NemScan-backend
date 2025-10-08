@@ -21,20 +21,20 @@ public class ProductController : ControllerBase
         _productImageService = productImageService;
     }
 
-    [HttpGet("customer/{productUid}")]
-    public async Task<IActionResult> GetProductForCustomer(Guid productUid)
+    [HttpGet("customer/barcode/{barcode}")]
+    public async Task<IActionResult> GetProductForCustomer(string barcode)
     {
-        var product = await _customerService.GetProductAsync(productUid);
+        var product = await _customerService.GetProductByBarcodeAsync(barcode);
         if (product == null)
             return NotFound("Produkt ikke fundet.");
 
         return Ok(product);
     }
 
-    [HttpGet("employee/{productUid}")]
-    public async Task<IActionResult> GetProductForEmployee(Guid productUid)
+    [HttpGet("employee/barcode/{barcode}")]
+    public async Task<IActionResult> GetProductForEmployee(string barcode)
     {
-        var product = await _employeeService.GetProductAsync(productUid);
+        var product = await _employeeService.GetProductByBarcodeAsync(barcode);
         if (product == null)
             return NotFound("Produkt ikke fundet.");
 
@@ -50,6 +50,4 @@ public class ProductController : ControllerBase
 
         return Ok(image);
     }
-
-
 }

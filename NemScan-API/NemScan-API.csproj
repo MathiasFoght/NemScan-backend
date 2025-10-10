@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>NemScan_API</RootNamespace>
+        <UserSecretsId>NemScanAPI-UserSecrets</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>

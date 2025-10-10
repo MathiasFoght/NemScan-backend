@@ -17,7 +17,10 @@ public static class ConfigLoader
         builder.Configuration["AmeroAuth:Audience"] = Environment.GetEnvironmentVariable("AMERO_AUDIENCE");
         builder.Configuration["AmeroAuth:Scope"] = Environment.GetEnvironmentVariable("AMERO_SCOPE");
 
-        builder.Configuration["POSTGRES_CONNECTION"] = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION");
+        builder.Configuration["AZURE_POSTGRES_CONNECTION"] = Environment.GetEnvironmentVariable("AZURE_POSTGRES_CONNECTION");
+        
+        builder.Configuration["AZURE_STORAGE_CONNECTION"] = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION");
+        builder.Configuration["AZURE_STORAGE_CONTAINER_NAME"] = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONTAINER_NAME");
     }
 
 }

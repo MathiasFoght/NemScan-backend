@@ -13,7 +13,7 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IJwtTokenService _jwtTokenService;
-    public record CustomerTokenRequest(string? DeviceId);
+    public record CustomerTokenRequest(string DeviceId);
     public record LoginRequest(string EmployeeNumber);
 
     public AuthController(IAuthService authService, IJwtTokenService jwtTokenService)
@@ -33,18 +33,23 @@ public class AuthController : ControllerBase
         if (user == null)
             return Unauthorized();
         
+        if (!user.IsValidPosition())
+            return BadRequest("Invalid role/position combination.");
+        
         var token = _jwtTokenService.GenerateEmployeeToken(user);
 
-        var userDto = new UserDTO
+        var userDto = new EmployeeLoginDTO
         {
             EmployeeNumber = user.EmployeeNumber,
             Name = user.Name,
-            Role = user.Role.ToString()
+            Role = user.Role.ToString(),
+            Position = user.Position.ToString(),
+            StoreNumber = user.StoreNumber,
         };
 
         return Ok(new
         {
-            User = userDto,
+            Employee = userDto,
             Token = token,
         });
     }
@@ -57,7 +62,7 @@ public class AuthController : ControllerBase
             return BadRequest("Device id is required.");
         var customer = new Customer
         {
-            DeviceId = request.DeviceId
+            DeviceId = request.DeviceId,
         };
 
         var token = _jwtTokenService.GenerateCustomerToken(customer);

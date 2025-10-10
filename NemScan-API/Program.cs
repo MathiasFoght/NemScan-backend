@@ -1,3 +1,4 @@
+using NemScan_API.SwaggerAuth;
 using NemScan_API.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,7 @@ builder.Services.AddJwtAuth(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerAuth();
 builder.Services.AddHealthChecks();
 
 if (builder.Environment.IsDevelopment())

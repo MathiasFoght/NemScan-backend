@@ -20,7 +20,6 @@ namespace NemScan_API.Services.Product
         {
             var token = await _ameroAuthService.GetAccessTokenAsync();
 
-            // Step 1: Find ProductUid ud fra barcode
             var barcodeRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 $"https://api.flexpos.com/api/v1.0/barcode?filters[Value][$eq]={barcode}"
@@ -40,7 +39,6 @@ namespace NemScan_API.Services.Product
 
             var productUid = items[0].GetProperty("ProductUid").GetGuid();
 
-            // Step 2: Hent produktdata
             var productRequest = new HttpRequestMessage(
                 HttpMethod.Get,
                 $"https://api.flexpos.com/api/v1.0/product/{productUid}"
@@ -55,7 +53,6 @@ namespace NemScan_API.Services.Product
             using var productDoc = JsonDocument.Parse(productContent);
             var root = productDoc.RootElement;
 
-            // Step 3: Returner DTO
             return new ProductForEmployee
             {
                 ClientUid = root.GetProperty("ClientUid").GetGuid(),

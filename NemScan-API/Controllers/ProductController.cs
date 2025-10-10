@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NemScan_API.Interfaces;
 
@@ -21,6 +22,8 @@ public class ProductController : ControllerBase
         _productImageService = productImageService;
     }
 
+
+    //[Authorize(Roles = "Customer")]
     [HttpGet("customer/by-barcode/{barcode}")]
     public async Task<IActionResult> GetProductForCustomer(string barcode)
     {
@@ -31,6 +34,7 @@ public class ProductController : ControllerBase
         return Ok(product);
     }
 
+    //[Authorize(Roles = "Basic")]
     [HttpGet("employee/by-barcode/{barcode}")]
     public async Task<IActionResult> GetProductForEmployee(string barcode)
     {

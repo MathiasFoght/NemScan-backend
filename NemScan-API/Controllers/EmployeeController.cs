@@ -77,4 +77,28 @@ public class EmployeeController : ControllerBase
 
         return Ok(profileDto);
     }
+    
+    [HttpDelete("profile-image")]
+    [Authorize(Policy = "EmployeeOnly")]
+    public async Task<IActionResult> DeleteProfileImage()
+    {
+        var employeeNumber = User.FindFirstValue("employeeNumber");
+        if (string.IsNullOrEmpty(employeeNumber))
+            return Unauthorized("Missing employeeNumber claim.");
+
+        var user = await _db.Users.SingleOrDefaultAsync(u => u.EmployeeNumber == employeeNumber);
+        if (user is null)
+            return NotFound("User not found.");
+
+        if (string.IsNullOrEmpty(user.ProfileImageUrl))
+            return BadRequest("No profile image to delete.");
+
+        await _employeeProfileService.DeleteIfExistsAsync(user.ProfileImageUrl);
+
+        user.ProfileImageUrl = null;
+        await _db.SaveChangesAsync();
+
+        return Ok(new { message = "Profile image removed successfully." });
+    }
+
 }

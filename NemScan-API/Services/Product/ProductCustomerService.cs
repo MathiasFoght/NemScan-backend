@@ -37,7 +37,21 @@ namespace NemScan_API.Services.Product
             if (items.GetArrayLength() == 0)
                 return null;
 
-            var productUid = items[0].GetProperty("ProductUid").GetGuid();
+            JsonElement? matchingItem = null;
+            foreach (var item in items.EnumerateArray())
+            {
+                var value = item.GetProperty("Value").GetString();
+                if (value == barcode)
+                {
+                    matchingItem = item;
+                    break;
+                }
+            }
+
+            if (matchingItem == null)
+                return null;
+
+            var productUid = matchingItem.Value.GetProperty("ProductUid").GetGuid();
 
             var productRequest = new HttpRequestMessage(
                 HttpMethod.Get,

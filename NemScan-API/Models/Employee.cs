@@ -16,7 +16,7 @@ public enum EmployeePosition
 
 public class Employee
 {
-    [Required]
+    [Key]
     public Guid Id { get; set; }
     
     [Required]

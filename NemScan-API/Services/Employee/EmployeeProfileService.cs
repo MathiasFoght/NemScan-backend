@@ -2,7 +2,7 @@ using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
-namespace NemScan_API.Services;
+namespace NemScan_API.Services.Employee;
 
 public class EmployeeProfileService
 {

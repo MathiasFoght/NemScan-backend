@@ -16,7 +16,7 @@ namespace NemScan_API.Services.Product
             _ameroAuthService = ameroAuthService;
         }
 
-        public async Task<ProductForEmployee?> GetProductByBarcodeAsync(string barcode)
+        public async Task<ProductEmployeeDTO?> GetProductByBarcodeAsync(string barcode)
         {
             var token = await _ameroAuthService.GetAccessTokenAsync();
 
@@ -53,7 +53,7 @@ namespace NemScan_API.Services.Product
             using var productDoc = JsonDocument.Parse(productContent);
             var root = productDoc.RootElement;
 
-            return new ProductForEmployee
+            return new ProductEmployeeDTO
             {
                 ClientUid = root.GetProperty("ClientUid").GetGuid(),
                 Uid = root.GetProperty("Uid").GetGuid(),

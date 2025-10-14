@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using NemScan_API.Config;
 using NemScan_API.Interfaces;
 
-namespace NemScan_API.Services;
+namespace NemScan_API.Services.Amero;
 
 public class AmeroAuthService : IAmeroAuthService
 {

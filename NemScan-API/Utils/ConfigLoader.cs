@@ -21,6 +21,12 @@ public static class ConfigLoader
         
         builder.Configuration["AZURE_STORAGE_CONNECTION"] = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION");
         builder.Configuration["AZURE_STORAGE_CONTAINER_NAME"] = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONTAINER_NAME");
+        
+        builder.Configuration["RabbitMq:Uri"] = Environment.GetEnvironmentVariable("RABBITMQ_URI");
+        builder.Configuration["RabbitMq:Exchange"] = Environment.GetEnvironmentVariable("RABBITMQ_EXCHANGE");
+        builder.Configuration["RabbitMq:AuthQueue"] = Environment.GetEnvironmentVariable("RABBITMQ_AUTH_QUEUE");
+        builder.Configuration["RabbitMq:EmployeeQueue"] = Environment.GetEnvironmentVariable("RABBITMQ_EMPLOYEE_QUEUE");
+        builder.Configuration["RabbitMq:ProductScanQueue"] = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCTSCAN_QUEUE");
     }
 
 }

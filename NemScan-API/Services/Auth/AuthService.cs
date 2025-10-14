@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NemScan_API.Interfaces;
-using NemScan_API.Models;
 using NemScan_API.Utils;
 
-namespace NemScan_API.Services;
+namespace NemScan_API.Services.Auth;
 
 public class AuthService : IAuthService
 {
@@ -14,7 +13,7 @@ public class AuthService : IAuthService
         _db = db;
     }
 
-    public async Task<Employee?> AuthenticateEmployeeAsync(string employeeNumber)
+    public async Task<Models.Employee?> AuthenticateEmployeeAsync(string employeeNumber)
     {
         return await _db.Users.FirstOrDefaultAsync(u => u.EmployeeNumber == employeeNumber);
     }

@@ -16,11 +16,47 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.9" />
         <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageReference Include="RabbitMQ.Client" Version="6.5.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\web.config" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\NemScan-API.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\NemScan-API.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\NemScan-API.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\NemScan-API.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\NemScan-API.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\NemScan-API.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\NemScan-API.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\NemScan-API.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\NemScan-API.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\NemScan-API.runtimeconfig.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\publish\appsettings.Development.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\publish\appsettings.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\publish\NemScan-API.deps.json" />
+      <_ContentIncludedByDefault Remove="publish\publish\publish\publish\publish\publish\NemScan-API.runtimeconfig.json" />
     </ItemGroup>
 
 </Project>

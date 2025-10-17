@@ -7,7 +7,7 @@ using NemScan_API.Config;
 using NemScan_API.Interfaces;
 using NemScan_API.Models;
 
-namespace NemScan_API.Services;
+namespace NemScan_API.Services.Auth;
 
 public class JwtTokenService : IJwtTokenService
 {
@@ -18,7 +18,7 @@ public class JwtTokenService : IJwtTokenService
         _options = options.Value;
     }
 
-    public string GenerateEmployeeToken(Employee employee)
+    public string GenerateEmployeeToken(Models.Employee employee)
     {
         var claims = new List<Claim>
         {

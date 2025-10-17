@@ -1,12 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace NemScan_API.Models;
+namespace NemScan_API.Models.Events;
 
-public class EmployeeLog
+public class EmployeeLogEvent
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
-    [Required]
     public string EventType { get; set; } = string.Empty;
     public string EmployeeNumber { get; set; } = string.Empty;
     public bool Success { get; set; }

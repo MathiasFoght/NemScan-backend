@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NemScan_API.Interfaces;
 using NemScan_API.Models.DTO;
-using NemScan_API.Models.DTO.Events;
-using NemScan_API.Services.Employee;
+using NemScan_API.Models.Events;
 using NemScan_API.Utils;
 
 namespace NemScan_API.Controllers;
@@ -15,10 +14,10 @@ namespace NemScan_API.Controllers;
 public class EmployeeController : ControllerBase
 {
     private readonly NemScanDbContext _db;
-    private readonly EmployeeProfileService _employeeProfileService;
+    private readonly IEmployeeService _employeeProfileService;
     private readonly ILogEventPublisher _logEventPublisher;
 
-    public EmployeeController(NemScanDbContext db, EmployeeProfileService employeeProfileService, ILogEventPublisher logEventPublisher)
+    public EmployeeController(NemScanDbContext db, IEmployeeService employeeProfileService, ILogEventPublisher logEventPublisher)
     {
         _db = db;
         _employeeProfileService = employeeProfileService;

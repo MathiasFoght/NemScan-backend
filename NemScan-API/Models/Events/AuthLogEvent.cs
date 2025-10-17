@@ -1,7 +1,11 @@
-namespace NemScan_API.Models.DTO.Events;
+using System.ComponentModel.DataAnnotations;
+
+namespace NemScan_API.Models.Events;
 
 public class AuthLogEvent
 {
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string EventType { get; set; } = string.Empty;
     public string? EmployeeNumber { get; set; }
     public string? DeviceId { get; set; }

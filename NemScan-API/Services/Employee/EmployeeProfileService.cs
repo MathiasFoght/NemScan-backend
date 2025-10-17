@@ -1,10 +1,11 @@
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using NemScan_API.Interfaces;
 
 namespace NemScan_API.Services.Employee;
 
-public class EmployeeProfileService
+public class EmployeeProfileService : IEmployeeService
 {
     private readonly BlobContainerClient _container;
 

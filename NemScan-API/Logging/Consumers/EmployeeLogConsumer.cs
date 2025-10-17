@@ -2,11 +2,10 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using NemScan_API.Config;
-using NemScan_API.Models;
-using NemScan_API.Models.DTO.Events;
 using NemScan_API.Utils;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using EmployeeLogEvent = NemScan_API.Models.Events.EmployeeLogEvent;
 
 namespace NemScan_API.Logging.Consumers;
 
@@ -63,7 +62,7 @@ public class EmployeeLogConsumer : BackgroundService
                     using var scope = _scopeFactory.CreateScope();
                     var db = scope.ServiceProvider.GetRequiredService<NemScanDbContext>();
 
-                    db.EmployeeLogs.Add(new EmployeeLog
+                    db.EmployeeLogs.Add(new EmployeeLogEvent
                     {
                         EventType = logEvent.EventType,
                         EmployeeNumber = logEvent.EmployeeNumber,

@@ -2,8 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using NemScan_API.Config;
-using NemScan_API.Models;
-using NemScan_API.Models.DTO.Events;
+using NemScan_API.Models.Events;
 using NemScan_API.Utils;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -50,7 +49,7 @@ public class ProductLogConsumer : BackgroundService
             {
                 var json = Encoding.UTF8.GetString(ea.Body.ToArray());
 
-                var logEvent = JsonSerializer.Deserialize<ProductLogEvent>(json);
+                var logEvent = JsonSerializer.Deserialize<ProductScanLogEvent>(json);
                 if (logEvent == null)
                 {
                     _channel.BasicAck(ea.DeliveryTag, false);
@@ -60,13 +59,13 @@ public class ProductLogConsumer : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<NemScanDbContext>();
 
-                db.ProductScanLogs.Add(new ProductScanLog
+                db.ProductScanLogs.Add(new ProductScanLogEvent
                 {
                     ProductNumber = logEvent.ProductNumber,
                     ProductName = logEvent.ProductName,
-                    DisplayProductGroupUid = logEvent.DisplayProductGroupUid,
                     CurrentSalesPrice = logEvent.CurrentSalesPrice,
                     CurrentStockQuantity = logEvent.CurrentStockQuantity,
+                    ProductGroup = logEvent.ProductGroup,
                     Success = logEvent.Success,
                     FailureReason = logEvent.FailureReason,
                     UserRole = logEvent.UserRole,

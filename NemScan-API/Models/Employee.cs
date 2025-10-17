@@ -19,21 +19,16 @@ public class Employee
     [Key]
     public Guid Id { get; set; }
     
-    [Required]
     public string EmployeeNumber { get; set; } = string.Empty;
     
-    [Required]
     public string Name { get; set; } = string.Empty;
     
-    [Required]
     public EmployeeRole Role { get; set; } = EmployeeRole.Basic;
     
-    [Required]
     public EmployeePosition Position { get; set; } = EmployeePosition.ServiceAssistant;
 
     
     [RegularExpression(@"^\d{6}$", ErrorMessage = "StoreNumber must be exactly 6 digits.")]
-    [Required]
     public string StoreNumber { get; set; } = string.Empty;
     
     public string? ProfileImageUrl { get; set; }

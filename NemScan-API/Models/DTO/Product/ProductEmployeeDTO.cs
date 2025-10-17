@@ -1,12 +1,16 @@
+using NemScan_API.Models.DTO.ProductCampaign;
+
 namespace NemScan_API.Models.DTO.Product;
 
 public class ProductEmployeeDTO
 {
-    public Guid ClientUid { get; set; }
     public Guid Uid { get; set; }
-    public string Number { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
+    public string ProductNumber { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
+    public string? ProductGroup { get; set; }
+    public string? ProductBrand { get; set; }
     public decimal CurrentStockQuantity { get; set; }
     public decimal CurrentSalesPrice { get; set; }
-    public string? DisplayProductGroupUid { get; set; }
+    public List<ProductCampaignDTO>? Campaigns { get; set; }
+
 }

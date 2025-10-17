@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using NemScan_API.Config;
 using NemScan_API.Interfaces;
-using NemScan_API.Logging;
-using NemScan_API.Services;
 using NemScan_API.Logging.Consumers;
 using NemScan_API.Logging.Publisher;
 using NemScan_API.Services.Amero;
 using NemScan_API.Services.Auth;
 using NemScan_API.Services.Employee;
 using NemScan_API.Services.Product;
+using NemScan_API.Services.ProductCampaign;
+using NemScan_API.Services.Statistics;
 
 namespace NemScan_API.Utils;
 
@@ -23,21 +23,29 @@ public static class ServiceRegistration
         services.AddDbContext<NemScanDbContext>(options => options.UseNpgsql(connectionString));
 
         services.AddScoped<IAuthService, AuthService>();
+        
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         services.AddHttpClient<IAmeroAuthService, AmeroAuthService>();
 
         services.AddScoped<IProductCustomerService, ProductCustomerService>();
+        
         services.AddScoped<IProductEmployeeService, ProductEmployeeService>();
+        
         services.AddHttpClient<IProductImageService, ProductImageService>();
         
-        services.AddSingleton<EmployeeProfileService>();
+        services.AddSingleton<IEmployeeService, EmployeeProfileService>();
+        
+        services.AddScoped<IStatisticsService, StatisticsService>();
+        
+        services.AddScoped<IProductCampaignService, ProductCampaignService>();
+
         
         services.Configure<RabbitMqConfig>(configuration.GetSection("RabbitMq"));
         services.AddSingleton<ILogEventPublisher, RabbitMqPublisher>();
+        
         services.AddHostedService<AuthLogConsumer>();
         services.AddHostedService<EmployeeLogConsumer>();
         services.AddHostedService<ProductLogConsumer>();
-
     }
 }

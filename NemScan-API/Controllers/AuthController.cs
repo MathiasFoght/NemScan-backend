@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NemScan_API.Interfaces;
 using NemScan_API.Models;
 using NemScan_API.Models.DTO;
-using NemScan_API.Models.DTO.Events;
+using AuthLogEvent = NemScan_API.Models.Events.AuthLogEvent;
 using IAuthService = NemScan_API.Interfaces.IAuthService;
 
 namespace NemScan_API.Controllers;

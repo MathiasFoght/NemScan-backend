@@ -2,12 +2,11 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using NemScan_API.Config;
-using NemScan_API.Models;
-using NemScan_API.Models.DTO.Events;
 using NemScan_API.Utils;
 using RabbitMQ.Client;
 using RabbitMQClientModel = RabbitMQ.Client.IModel;
 using RabbitMQ.Client.Events;
+using AuthLogEvent = NemScan_API.Models.Events.AuthLogEvent;
 
 namespace NemScan_API.Logging.Consumers;
 
@@ -71,7 +70,7 @@ public class AuthLogConsumer : BackgroundService
                     var db = scope.ServiceProvider.GetRequiredService<NemScanDbContext>();
 
                     // Object to save
-                    db.AuthLogs.Add(new AuthLog
+                    db.AuthLogs.Add(new AuthLogEvent
                     {
                         EventType = logEvent.EventType,
                         EmployeeNumber = logEvent.EmployeeNumber,

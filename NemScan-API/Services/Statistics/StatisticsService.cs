@@ -79,31 +79,34 @@ public class StatisticsService : IStatisticsService
     
     public async Task<ScanPerformanceDTO> GetScanPerformanceAsync(DateTime? from = null, DateTime? to = null)
     {
-        var endDate = to ?? DateTime.UtcNow;
-        var startDate = from ?? endDate.AddDays(-7);
+        var today = DateTime.UtcNow;
 
-        // Sidste uge
-        var prevEnd = startDate;
-        var prevStart = prevEnd.AddDays(-7);
+        var startOfCurrentMonth = new DateTime(today.Year, today.Month, 1);
+        var endOfCurrentMonth = startOfCurrentMonth.AddMonths(1).AddTicks(-1);
+
+        var startOfPrevMonth = startOfCurrentMonth.AddMonths(-1);
+        var endOfPrevMonth = startOfCurrentMonth.AddTicks(-1);
+
+        var startDate = from ?? startOfCurrentMonth;
+        var endDate = to ?? endOfCurrentMonth;
 
         var currentScans = await _db.ProductScanLogs
             .Where(p => p.Timestamp >= startDate && p.Timestamp <= endDate)
             .ToListAsync();
 
         var prevScans = await _db.ProductScanLogs
-            .Where(p => p.Timestamp >= prevStart && p.Timestamp <= prevEnd)
+            .Where(p => p.Timestamp >= startOfPrevMonth && p.Timestamp <= endOfPrevMonth)
             .ToListAsync();
 
-        double currentSuccessRate = 0;
-        if (currentScans.Any())
-            currentSuccessRate = (double)currentScans.Count(s => s.Success) / currentScans.Count * 100;
+        double currentSuccessRate = currentScans.Any()
+            ? (double)currentScans.Count(s => s.Success) / currentScans.Count * 100
+            : 0;
 
-        double prevSuccessRate = 0;
-        if (prevScans.Any())
-            prevSuccessRate = (double)prevScans.Count(s => s.Success) / prevScans.Count * 100;
+        double prevSuccessRate = prevScans.Any()
+            ? (double)prevScans.Count(s => s.Success) / prevScans.Count * 100
+            : 0;
 
-        var trend = currentSuccessRate - prevSuccessRate;
-
+        var trend = prevSuccessRate == 0 ? 0 : ((currentSuccessRate - prevSuccessRate) / prevSuccessRate) * 100;
         return new ScanPerformanceDTO
         {
             TotalScans = currentScans.Count,

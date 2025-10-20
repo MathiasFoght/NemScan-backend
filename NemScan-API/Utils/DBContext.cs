@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NemScan_API.Models;
 using NemScan_API.Models.Events;
 
@@ -12,5 +13,19 @@ public class NemScanDbContext : DbContext
     public DbSet<AuthLogEvent> AuthLogs { get; set; }
     public DbSet<EmployeeLogEvent> EmployeeLogs { get; set; }
     public DbSet<ProductScanLogEvent> ProductScanLogs { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        var dateTimeOffsetToUtcConverter = new ValueConverter<DateTimeOffset, DateTimeOffset>(
+            v => v.ToUniversalTime(),   
+            v => v                      
+        );
+
+        modelBuilder.Entity<ProductScanLogEvent>()
+            .Property(p => p.Timestamp)
+            .HasConversion(dateTimeOffsetToUtcConverter);
+
+        base.OnModelCreating(modelBuilder);
+    }
 
 }

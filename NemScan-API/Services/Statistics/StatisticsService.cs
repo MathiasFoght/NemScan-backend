@@ -38,10 +38,7 @@ public class StatisticsService : IStatisticsService
         var grouped = logs
             .GroupBy(p =>
             {
-                var localTime = TimeZoneInfo.ConvertTimeFromUtc(
-                    DateTime.SpecifyKind(p.Timestamp, DateTimeKind.Utc),
-                    copenhagenZone
-                );
+                var localTime = TimeZoneInfo.ConvertTime(p.Timestamp, copenhagenZone);
 
                 return new
                 {

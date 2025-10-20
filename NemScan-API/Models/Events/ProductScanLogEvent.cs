@@ -14,5 +14,5 @@ public class ProductScanLogEvent
     public bool Success { get; set; }
     public string? FailureReason { get; set; }
     public string UserRole { get; set; } = string.Empty;
-    public DateTime Timestamp { get; set; }
+    public DateTimeOffset Timestamp { get; set; }
 }

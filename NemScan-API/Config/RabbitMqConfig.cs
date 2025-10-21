@@ -7,5 +7,7 @@ public class RabbitMqConfig
     public string AuthQueue { get; set; } = "nemscan.auth.logger";
     public string EmployeeQueue { get; set; } = "nemscan.employee.logger";
     public string ProductScanQueue { get; set; } = "nemscan.productScan.logger";
+    public string ProductScanReportQueue { get; set; } = "nemscan.productScanReport.logger";
+
 
 }

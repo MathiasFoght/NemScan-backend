@@ -12,7 +12,6 @@ public class ProductScanLogEvent
     public decimal? CurrentStockQuantity { get; set; }
     public string? ProductGroup { get; set; }
     public bool Success { get; set; }
-    public string? FailureReason { get; set; }
     public string UserRole { get; set; } = string.Empty;
     public DateTimeOffset Timestamp { get; set; }
 }

@@ -10,7 +10,7 @@ using NemScan_API.Utils;
 namespace NemScan_API.Controllers;
 
 [ApiController]
-[Route("api/employee")]
+[Route("api/[controller]")]
 public class EmployeeController : ControllerBase
 {
     private readonly NemScanDbContext _db;

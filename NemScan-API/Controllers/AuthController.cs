@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NemScan_API.Interfaces;
 using NemScan_API.Models;
+using NemScan_API.Models.Auth;
 using NemScan_API.Models.DTO;
 using AuthLogEvent = NemScan_API.Models.Events.AuthLogEvent;
 using IAuthService = NemScan_API.Interfaces.IAuthService;
@@ -9,7 +10,7 @@ using IAuthService = NemScan_API.Interfaces.IAuthService;
 namespace NemScan_API.Controllers;
 
 [ApiController]
-[Route("api/auth")]
+[Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

@@ -13,7 +13,7 @@ public class AuthService : IAuthService
         _db = db;
     }
 
-    public async Task<Models.Employee?> AuthenticateEmployeeAsync(string employeeNumber)
+    public async Task<Models.Auth.Employee?> AuthenticateEmployeeAsync(string employeeNumber)
     {
         return await _db.Users.FirstOrDefaultAsync(u => u.EmployeeNumber == employeeNumber);
     }

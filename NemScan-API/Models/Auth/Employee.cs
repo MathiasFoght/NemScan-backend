@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace NemScan_API.Models;
+namespace NemScan_API.Models.Auth;
 
 public enum EmployeeRole
 {

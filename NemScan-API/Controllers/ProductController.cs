@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NemScan_API.Interfaces;
 using NemScan_API.Models.Events;
+using NemScan_API.Utils;
 
 namespace NemScan_API.Controllers;
 
@@ -14,52 +15,79 @@ public class ProductController : ControllerBase
     private readonly IProductImageService _productImageService;
     private readonly ILogEventPublisher _logEventPublisher;
     private readonly IProductCampaignService _productCampaignService;
+    private readonly NemScanDbContext _db;
+
 
     public ProductController(
         IProductCustomerService customerService,
         IProductEmployeeService employeeService,
         IProductImageService productImageService,
         ILogEventPublisher logEventPublisher,
-        IProductCampaignService productCampaignService)
+        IProductCampaignService productCampaignService,
+        NemScanDbContext db)
     {
         _customerService = customerService;
         _employeeService = employeeService;
         _productImageService = productImageService;
         _logEventPublisher = logEventPublisher;
         _productCampaignService = productCampaignService;
+        _db = db;
     }
     
     [Authorize(Policy = "CustomerOnly")]   
     [HttpGet("customer/by-barcode/{barcode}")]
     public async Task<IActionResult> GetProductForCustomer(string barcode)
     {
+        var timestamp = DateTime.UtcNow;
         var product = await _customerService.GetProductByBarcodeAsync(barcode);
+
+        ProductScanLogEvent scanLog;
+
         if (product == null)
         {
-            await _logEventPublisher.PublishAsync(new ProductScanLogEvent
+            scanLog = new ProductScanLogEvent
             {
+                Id = Guid.NewGuid(),
                 ProductNumber = barcode,
                 Success = false,
                 UserRole = "customer",
-                FailureReason = "Product not found",
-                Timestamp = DateTime.UtcNow
-            }, "product.scan.failed");
-
-            return NotFound($"Produkt ikke fundet");
+                Timestamp = timestamp
+            };
         }
-        
-        await _logEventPublisher.PublishAsync(new ProductScanLogEvent
+        else
         {
-            ProductNumber = product.ProductNumber,
-            ProductName = product.ProductName,
-            CurrentSalesPrice = product.CurrentSalesPrice,
-            ProductGroup = product.ProductGroup,
-            Success = true,
-            UserRole = "customer",
-            Timestamp = DateTime.UtcNow
-        }, "product.scan.success");
-        
-        return Ok(product);
+            scanLog = new ProductScanLogEvent
+            {
+                Id = Guid.NewGuid(),
+                ProductNumber = product.ProductNumber,
+                ProductName = product.ProductName,
+                CurrentSalesPrice = product.CurrentSalesPrice,
+                ProductGroup = product.ProductGroup,
+                Success = true,
+                UserRole = "customer",
+                Timestamp = timestamp
+            };
+        }
+
+        _db.ProductScanLogs.Add(scanLog);
+        await _db.SaveChangesAsync();
+
+        await _logEventPublisher.PublishAsync(scanLog, scanLog.Success
+            ? "product.scan.success"
+            : "product.scan.failed");
+
+        if (!scanLog.Success)
+            return NotFound(new
+            {
+                message = "Produkt ikke fundet",
+                scanLogId = scanLog.Id
+            });
+
+        return Ok(new
+        {
+            scanLogId = scanLog.Id,
+            product
+        });
     }
 
     [Authorize(Policy = "EmployeeOnly")]
@@ -67,32 +95,52 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> GetProductForEmployee(string barcode)
     {
         var product = await _employeeService.GetProductByBarcodeAsync(barcode);
+        var timestamp = DateTime.UtcNow;
+
+        ProductScanLogEvent scanLog;
+
         if (product == null)
         {
-            await _logEventPublisher.PublishAsync(new ProductScanLogEvent
+            scanLog = new ProductScanLogEvent
             {
+                Id = Guid.NewGuid(),
                 ProductNumber = barcode,
                 Success = false,
-                FailureReason = "Product not found",
-                Timestamp = DateTime.UtcNow
-            }, "product.scan.failed");
-
-            return NotFound("Produkt ikke fundet");
+                UserRole = "employee",
+                Timestamp = timestamp
+            };
         }
-        
-        await _logEventPublisher.PublishAsync(new ProductScanLogEvent
+        else
         {
-            ProductNumber = product.ProductNumber,
-            ProductName = product.ProductName,
-            CurrentSalesPrice = product.CurrentSalesPrice,
-            CurrentStockQuantity = product.CurrentStockQuantity,
-            ProductGroup = product.ProductGroup,
-            Success = true,
-            UserRole = "employee",
-            Timestamp = DateTime.UtcNow
-        }, "product.scan.success");
+            scanLog = new ProductScanLogEvent
+            {
+                Id = Guid.NewGuid(),
+                ProductNumber = product.ProductNumber,
+                ProductName = product.ProductName,
+                CurrentSalesPrice = product.CurrentSalesPrice,
+                CurrentStockQuantity = product.CurrentStockQuantity,
+                ProductGroup = product.ProductGroup,
+                Success = true,
+                UserRole = "employee",
+                Timestamp = timestamp
+            };
+        }
 
-        return Ok(product);
+        _db.ProductScanLogs.Add(scanLog);
+        await _db.SaveChangesAsync();
+
+        await _logEventPublisher.PublishAsync(scanLog, scanLog.Success
+            ? "product.scan.success"
+            : "product.scan.failed");
+
+        if (!scanLog.Success)
+            return NotFound(new { message = "Produkt ikke fundet", scanLogId = scanLog.Id });
+
+        return Ok(new
+        {
+            scanLogId = scanLog.Id,
+            product
+        });
     }
 
     [Authorize(Policy = "EmployeeOrCustomer")]   

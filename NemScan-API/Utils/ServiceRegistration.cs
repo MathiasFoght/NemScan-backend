@@ -8,6 +8,7 @@ using NemScan_API.Services.Auth;
 using NemScan_API.Services.Employee;
 using NemScan_API.Services.Product;
 using NemScan_API.Services.ProductCampaign;
+using NemScan_API.Services.Report;
 using NemScan_API.Services.Statistics;
 
 namespace NemScan_API.Utils;
@@ -39,6 +40,9 @@ public static class ServiceRegistration
         services.AddScoped<IStatisticsService, StatisticsService>();
         
         services.AddScoped<IProductCampaignService, ProductCampaignService>();
+        
+        services.AddScoped<IReportService, ReportService>();
+
 
         
         services.Configure<RabbitMqConfig>(configuration.GetSection("RabbitMq"));

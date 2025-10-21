@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NemScan_API.Models;
+using NemScan_API.Models.Auth;
 using NemScan_API.Models.Events;
 
 namespace NemScan_API.Utils;
@@ -13,6 +13,8 @@ public class NemScanDbContext : DbContext
     public DbSet<AuthLogEvent> AuthLogs { get; set; }
     public DbSet<EmployeeLogEvent> EmployeeLogs { get; set; }
     public DbSet<ProductScanLogEvent> ProductScanLogs { get; set; }
+    public DbSet<ProductScanReportLogEvent> ProductScanReportLogs { get; set; }
+
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

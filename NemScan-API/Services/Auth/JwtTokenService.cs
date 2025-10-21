@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NemScan_API.Config;
 using NemScan_API.Interfaces;
-using NemScan_API.Models;
+using NemScan_API.Models.Auth;
 
 namespace NemScan_API.Services.Auth;
 
@@ -18,7 +18,7 @@ public class JwtTokenService : IJwtTokenService
         _options = options.Value;
     }
 
-    public string GenerateEmployeeToken(Models.Employee employee)
+    public string GenerateEmployeeToken(Models.Auth.Employee employee)
     {
         var claims = new List<Claim>
         {

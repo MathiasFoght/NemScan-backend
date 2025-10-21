@@ -27,6 +27,7 @@ public static class ConfigLoader
         builder.Configuration["RabbitMq:AuthQueue"] = Environment.GetEnvironmentVariable("RABBITMQ_AUTH_QUEUE");
         builder.Configuration["RabbitMq:EmployeeQueue"] = Environment.GetEnvironmentVariable("RABBITMQ_EMPLOYEE_QUEUE");
         builder.Configuration["RabbitMq:ProductScanQueue"] = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCTSCAN_QUEUE");
+        builder.Configuration["RabbitMq:ProductScanReportQueue"] = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCTSCANREPORT_QUEUE");
     }
 
 }

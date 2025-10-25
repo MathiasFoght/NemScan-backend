@@ -6,10 +6,9 @@ public class ProductScanLogEvent
 {
     [Key]
     public Guid Id { get; set; }
+    public string? DeviceId { get; set; }
     public string ProductNumber { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;
-    public decimal? CurrentSalesPrice { get; set; }
-    public decimal? CurrentStockQuantity { get; set; }
     public string? ProductGroup { get; set; }
     public bool Success { get; set; }
     public string UserRole { get; set; } = string.Empty;

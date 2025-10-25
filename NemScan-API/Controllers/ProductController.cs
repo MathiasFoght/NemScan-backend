@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NemScan_API.Interfaces;
+using NemScan_API.Models.DTO.Product;
 using NemScan_API.Models.Events;
 using NemScan_API.Utils;
 
@@ -15,6 +16,7 @@ public class ProductController : ControllerBase
     private readonly IProductImageService _productImageService;
     private readonly ILogEventPublisher _logEventPublisher;
     private readonly IProductCampaignService _productCampaignService;
+    private readonly IProductAllProductsService _productAllProductsService;
     private readonly NemScanDbContext _db;
 
 
@@ -24,6 +26,7 @@ public class ProductController : ControllerBase
         IProductImageService productImageService,
         ILogEventPublisher logEventPublisher,
         IProductCampaignService productCampaignService,
+        IProductAllProductsService productAllProductsService,
         NemScanDbContext db)
     {
         _customerService = customerService;
@@ -31,6 +34,7 @@ public class ProductController : ControllerBase
         _productImageService = productImageService;
         _logEventPublisher = logEventPublisher;
         _productCampaignService = productCampaignService;
+        _productAllProductsService = productAllProductsService;
         _db = db;
     }
     
@@ -59,9 +63,9 @@ public class ProductController : ControllerBase
             scanLog = new ProductScanLogEvent
             {
                 Id = Guid.NewGuid(),
+                DeviceId = product.DeviceId,
                 ProductNumber = product.ProductNumber,
                 ProductName = product.ProductName,
-                CurrentSalesPrice = product.CurrentSalesPrice,
                 ProductGroup = product.ProductGroup,
                 Success = true,
                 UserRole = "customer",
@@ -69,19 +73,12 @@ public class ProductController : ControllerBase
             };
         }
 
-        _db.ProductScanLogs.Add(scanLog);
-        await _db.SaveChangesAsync();
-
         await _logEventPublisher.PublishAsync(scanLog, scanLog.Success
             ? "product.scan.success"
             : "product.scan.failed");
 
         if (!scanLog.Success)
-            return NotFound(new
-            {
-                message = "Produkt ikke fundet",
-                scanLogId = scanLog.Id
-            });
+            return NotFound(new { message = "Product not found", scanLogId = scanLog.Id });
 
         return Ok(new
         {
@@ -115,10 +112,9 @@ public class ProductController : ControllerBase
             scanLog = new ProductScanLogEvent
             {
                 Id = Guid.NewGuid(),
+                DeviceId = product.DeviceId,
                 ProductNumber = product.ProductNumber,
                 ProductName = product.ProductName,
-                CurrentSalesPrice = product.CurrentSalesPrice,
-                CurrentStockQuantity = product.CurrentStockQuantity,
                 ProductGroup = product.ProductGroup,
                 Success = true,
                 UserRole = "employee",
@@ -126,15 +122,12 @@ public class ProductController : ControllerBase
             };
         }
 
-        _db.ProductScanLogs.Add(scanLog);
-        await _db.SaveChangesAsync();
-
         await _logEventPublisher.PublishAsync(scanLog, scanLog.Success
             ? "product.scan.success"
             : "product.scan.failed");
 
         if (!scanLog.Success)
-            return NotFound(new { message = "Produkt ikke fundet", scanLogId = scanLog.Id });
+            return NotFound(new { message = "Product not found", scanLogId = scanLog.Id });
 
         return Ok(new
         {
@@ -143,21 +136,39 @@ public class ProductController : ControllerBase
         });
     }
 
-    [Authorize(Policy = "EmployeeOrCustomer")]   
+    [Authorize(Policy = "EmployeeOrCustomer")]
     [HttpGet("image/by-barcode/{barcode}")]
     public async Task<IActionResult> GetProductImageByBarcode(string barcode)
     {
-        var product = await _customerService.GetProductByBarcodeAsync(barcode);
-        if (product == null)
-            return NotFound("Produkt ikke fundet for den angivne barcode");
+        var userType = User.FindFirst("userType")?.Value;
 
-        var imageUrl = await _productImageService.GetProductImageAsync(product.Uid);
+        if (string.IsNullOrEmpty(userType))
+            return Forbid("User type not specified in token");
+
+        SimpleProductDTO? product = null;
+
+        if (userType.Equals("employee", StringComparison.OrdinalIgnoreCase))
+        {
+            var empProduct = await _employeeService.GetProductByBarcodeAsync(barcode);
+            if (empProduct != null)
+                product = new SimpleProductDTO { Uid = empProduct.Uid };
+        }
+        else if (userType.Equals("customer", StringComparison.OrdinalIgnoreCase))
+        {
+            var custProduct = await _customerService.GetProductByBarcodeAsync(barcode);
+            if (custProduct != null)
+                product = new SimpleProductDTO { Uid = custProduct.Uid };
+        }
+
+        if (product == null)
+            return NotFound("Product not found for the specified barcode");
+
+        var imageUrl = await _productImageService.GetProductImageByBarcodeAsync(product.Uid);
         if (imageUrl == null)
-            return NotFound("Produktbillede ikke fundet");
+            return NotFound("Product image not found");
 
         return Ok(imageUrl);
     }
-    
     
     [Authorize(Policy = "EmployeeOnly")]
     [HttpGet("available-campaigns")]
@@ -170,4 +181,19 @@ public class ProductController : ControllerBase
 
         return Ok(campaigns);
     }
+    
+    [Authorize(Policy = "EmployeeOrCustomer")]
+    [HttpGet("all-products")]
+    public async Task<IActionResult> GetAllProducts()
+    {
+        var products = await _productAllProductsService.GetAllProductsAsync();
+
+        if (products == null || products.Count == 0)
+            return NotFound("No products to retrieve");
+        
+        return Ok(products);
+    }
+
+    
+    
 }

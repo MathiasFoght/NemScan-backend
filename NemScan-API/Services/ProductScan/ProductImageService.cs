@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using NemScan_API.Interfaces;
 
-namespace NemScan_API.Services.Product;
+namespace NemScan_API.Services.ProductScan;
 
 public class ProductImageService : IProductImageService
 {
@@ -14,7 +14,7 @@ public class ProductImageService : IProductImageService
         _ameroAuthService = ameroAuthService;
     }
 
-    public async Task<string?> GetProductImageAsync(Guid productUid)
+    public async Task<string?> GetProductImageByBarcodeAsync(Guid productUid)
     {
         var token = await _ameroAuthService.GetAccessTokenAsync();
 

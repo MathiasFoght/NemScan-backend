@@ -58,7 +58,9 @@ public class ReportLogConsumer : BackgroundService
 
                 db.ProductScanReportLogs.Add(logEvent);
                 await db.SaveChangesAsync(stoppingToken);
-
+                
+                Console.WriteLine($"Report saved for product ({logEvent.ProductNumber}) by {logEvent.UserRole}");
+                
                 _channel.BasicAck(ea.DeliveryTag, false);
                 Console.WriteLine("Report saved to database");
             }

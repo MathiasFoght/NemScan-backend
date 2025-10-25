@@ -4,7 +4,7 @@ namespace NemScan_API.Interfaces;
 
 public interface IReportService
 {
-    Task<bool> CreateReportAsync(Guid scanLogId, string productNumber, string reportType, string userRole);
-    Task<List<ErrorPatternDTO>> GetErrorPatternsAsync(string language = "da");
-    Task<List<FrequentErrorProductDTO>> GetTop3MostFailedProductsAsync();
+    Task<bool> CreateReportAsync(string productNumber, string productName, string userRole);
+    Task<List<FrequentErrorProductDTO>> GetTop3MostReportedProductsAsync();
+    Task<TodaysReportCountDTO> GetTodaysReportCountAsync();
 }

@@ -1,4 +1,5 @@
 using NemScan_API.SwaggerAuth;
+using NemScan_API.RateLimit;
 using NemScan_API.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerAuth();
 builder.Services.AddHealthChecks();
+builder.Services.AddGlobalRateLimiting();
+
 
 if (builder.Environment.IsDevelopment())
 {
@@ -30,6 +33,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.MapHealthChecks("/health");
 app.MapGet("/", () => "NemScan API is running");
 app.MapControllers();

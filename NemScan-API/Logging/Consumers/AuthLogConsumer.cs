@@ -29,7 +29,6 @@ public class AuthLogConsumer : BackgroundService
         {
             Console.WriteLine("Starting AuthLogConsumer");
             
-            // Init. rabbitMQ connection
             var factory = new ConnectionFactory
             {
                 Uri = new Uri(_config.Uri),
@@ -39,21 +38,18 @@ public class AuthLogConsumer : BackgroundService
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
             
-            // Define exchange
             _channel.ExchangeDeclare(_config.Exchange, ExchangeType.Topic, durable: true);
 
-            // Define queue
             _channel.QueueDeclare(_config.AuthQueue, durable: true, exclusive: false, autoDelete: false);
 
-            // Bind queue to exchange
             _channel.QueueBind(_config.AuthQueue, _config.Exchange, "auth.#");
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
 
-            // Handle received messages
             consumer.Received += async (_, ea) =>
             {
                 Console.WriteLine("AuthLogConsumer received message");
+                
                 try
                 {
                     var json = Encoding.UTF8.GetString(ea.Body.ToArray());
@@ -61,7 +57,6 @@ public class AuthLogConsumer : BackgroundService
                     var logEvent = JsonSerializer.Deserialize<AuthLogEvent>(json);
                     if (logEvent == null)
                     {
-                        // Acknowledge message
                         _channel?.BasicAck(ea.DeliveryTag, false);
                         return;
                     }
@@ -69,7 +64,6 @@ public class AuthLogConsumer : BackgroundService
                     using var scope = _scopeFactory.CreateScope();
                     var db = scope.ServiceProvider.GetRequiredService<NemScanDbContext>();
 
-                    // Object to save
                     db.AuthLogs.Add(new AuthLogEvent
                     {
                         EventType = logEvent.EventType,
@@ -80,11 +74,11 @@ public class AuthLogConsumer : BackgroundService
                         Timestamp = logEvent.Timestamp
                     });
                     
-                    // Save changes
                     await db.SaveChangesAsync(stoppingToken);
                     Console.WriteLine("Saved to database successfully");
+                    
+                    Console.WriteLine($"Auth log saved for ({logEvent.EmployeeNumber}) ({logEvent.EventType})");
 
-                    // Acknowledge message
                     _channel?.BasicAck(ea.DeliveryTag, false);
                 }
                 catch (Exception ex)
@@ -94,7 +88,6 @@ public class AuthLogConsumer : BackgroundService
                 }
             };
 
-            // Start consuming
             _channel.BasicConsume(_config.AuthQueue, autoAck: false, consumer);
             Console.WriteLine("AuthLogConsumer started and waiting for messages");
         }
@@ -106,7 +99,6 @@ public class AuthLogConsumer : BackgroundService
         return Task.CompletedTask;
     }
 
-    // Clean up when service is stopped
     public override void Dispose()
     {
         _channel?.Dispose();

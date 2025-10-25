@@ -61,10 +61,9 @@ public class ProductLogConsumer : BackgroundService
 
                 db.ProductScanLogs.Add(new ProductScanLogEvent
                 {
+                    DeviceId = logEvent.DeviceId,
                     ProductNumber = logEvent.ProductNumber,
                     ProductName = logEvent.ProductName,
-                    CurrentSalesPrice = logEvent.CurrentSalesPrice,
-                    CurrentStockQuantity = logEvent.CurrentStockQuantity,
                     ProductGroup = logEvent.ProductGroup,
                     Success = logEvent.Success,
                     UserRole = logEvent.UserRole,
@@ -73,7 +72,9 @@ public class ProductLogConsumer : BackgroundService
                 
                 await db.SaveChangesAsync(stoppingToken);
                 Console.WriteLine("Saved to database successfully");
-
+                
+                Console.WriteLine($"Saved scan log for product ({logEvent.ProductNumber}) by {logEvent.UserRole}");
+                
                 _channel.BasicAck(ea.DeliveryTag, false);
             }
             catch (Exception ex)

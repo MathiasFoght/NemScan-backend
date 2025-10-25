@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.EmployeeNumber))
-            return BadRequest("Employee number is required.");
+            return BadRequest("Employee number is required");
 
         var user = await _authService.AuthenticateEmployeeAsync(request.EmployeeNumber);
         if (user == null)
@@ -87,7 +87,7 @@ public class AuthController : ControllerBase
                 EventType = "auth.customer.token",
                 DeviceId = request.DeviceId,
                 Success = false,
-                Message = "Customer token generation failed. Device id is required)"
+                Message = "Customer token generation failed. Device id is required"
             }, "auth.customer.token");
             
             return BadRequest("Device id is required");
@@ -105,7 +105,7 @@ public class AuthController : ControllerBase
             EventType = "auth.customer.token",
             DeviceId = request.DeviceId,
             Success = true,
-            Message = "Customer token generated)"
+            Message = "Customer token generated"
         }, "auth.customer.token");
         
         return Ok(new { Token = token });

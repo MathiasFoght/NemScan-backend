@@ -59,7 +59,7 @@ public class EmployeeController : ControllerBase
             EventType = "employee.profile.upload.success",
             EmployeeNumber = employeeNumber,
             Success = true,
-            Message = $"Employee ({user.Name}) uploaded a new profile image.",
+            Message = $"Employee ({user.Name}) uploaded a new profile image",
             Timestamp = DateTime.UtcNow
         }, "employee.profile.upload.success");
 
@@ -93,7 +93,7 @@ public class EmployeeController : ControllerBase
             EventType = "employee.profile.view",
             EmployeeNumber = employeeNumber,
             Success = true,
-            Message = $"Employee ({user.Name}) viewed profile information.",
+            Message = $"Employee ({user.Name}) viewed profile information",
             Timestamp = DateTime.UtcNow
         }, "employee.profile.view");
 
@@ -113,7 +113,7 @@ public class EmployeeController : ControllerBase
             return NotFound("Employee not found");
 
         if (string.IsNullOrEmpty(user.ProfileImageUrl))
-            return BadRequest("No profile image to delete.");
+            return BadRequest("No profile image to delete");
 
         await _employeeProfileService.DeleteIfExistsAsync(user.ProfileImageUrl);
 
@@ -125,7 +125,7 @@ public class EmployeeController : ControllerBase
             EventType = "employee.profile.delete.success",
             EmployeeNumber = employeeNumber,
             Success = true,
-            Message = $"Employee ({user.Name}) deleted their profile image.",
+            Message = $"Employee ({user.Name}) deleted their profile image",
             Timestamp = DateTime.UtcNow
         }, "employee.profile.delete.success");
 

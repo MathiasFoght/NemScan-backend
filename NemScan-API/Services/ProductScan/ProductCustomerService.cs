@@ -3,7 +3,7 @@ using System.Text.Json;
 using NemScan_API.Interfaces;
 using NemScan_API.Models.DTO.Product;
 
-namespace NemScan_API.Services.Product;
+namespace NemScan_API.Services.ProductScan;
     
 public class ProductCustomerService : IProductCustomerService
 {

@@ -37,7 +37,6 @@ public class RabbitMqPublisher : ILogEventPublisher, IDisposable
         var props = _channel.CreateBasicProperties();
         props.Persistent = true;
         
-        // Define publisher properties
         _channel.BasicPublish(
             exchange: _config.Exchange,
             routingKey: routingKey,

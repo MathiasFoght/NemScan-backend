@@ -15,22 +15,14 @@ public class ReportService : IReportService
         _db = db;
     }
 
-    // Create a report
-    public async Task<bool> CreateReportAsync(Guid scanLogId, string productNumber, string reportType, string userRole)
+    public async Task<bool> CreateReportAsync(string productNumber, string productName, string userRole)
     {
-        if (!Enum.TryParse<ReportType>(reportType, true, out var parsedType))
-            throw new ArgumentException("Invalid report type");
-
-        var scanLog = await _db.ProductScanLogs.FindAsync(scanLogId);
-        if (scanLog == null)
-            return false;
-
         var report = new ProductScanReportLogEvent
         {
             Id = Guid.NewGuid(),
-            ProductScanLogId = scanLogId,
             ProductNumber = productNumber,
-            ReportType = parsedType,
+            ProductName = productName,
+            ReportType = ReportType.ProductNotFound,
             UserRole = userRole,
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -41,58 +33,18 @@ public class ReportService : IReportService
         return true;
     }
 
-    // Error patterns
-    public async Task<List<ErrorPatternDTO>> GetErrorPatternsAsync(string language = "da")
-    {
-        var grouped = await _db.ProductScanReportLogs
-            .GroupBy(r => r.ReportType)
-            .Select(g => new ErrorPatternDTO
-            {
-                ReportType = g.Key.ToString(),
-                Count = g.Count()
-            })
-            .OrderByDescending(x => x.Count)
-            .ToListAsync();
-
-        int total = grouped.Sum(x => x.Count);
-        grouped.ForEach(x =>
-        {
-            x.Percentage = total == 0 ? 0 : Math.Round((double)x.Count / total * 100, 1);
-            x.Label = language switch
-            {
-                "da" => x.ReportType switch
-                {
-                    "ProductNotFound" => "Produkt kunne ikke findes",
-                    "CampaignNotFound" => "Kampagne ikke fundet",
-                    "MissingInformation" => "Manglende information",
-                    _ => x.ReportType
-                },
-                _ => x.ReportType switch
-                {
-                    "ProductNotFound" => "Product not found",
-                    "CampaignNotFound" => "Campaign not found",
-                    "MissingInformation" => "Missing information",
-                    _ => x.ReportType
-                }
-            };
-        });
-
-        return grouped;
-    }
-
-    // Top 3 most problematic products
-    public async Task<List<FrequentErrorProductDTO>> GetTop3MostFailedProductsAsync()
+    public async Task<List<FrequentErrorProductDTO>> GetTop3MostReportedProductsAsync()
     {
         var grouped = await _db.ProductScanReportLogs
             .GroupBy(r => new
             {
                 r.ProductNumber,
-                ProductName = r.ProductScanLog != null ? r.ProductScanLog.ProductName : "Ukendt produkt"
-            })            
+                r.ProductName
+            })
             .Select(g => new FrequentErrorProductDTO
             {
                 ProductNumber = g.Key.ProductNumber,
-                ProductName = g.Key.ProductName,
+                ProductName = string.IsNullOrWhiteSpace(g.Key.ProductName) ? "Unknown product" : g.Key.ProductName,
                 ErrorCount = g.Count()
             })
             .OrderByDescending(x => x.ErrorCount)
@@ -105,5 +57,20 @@ public class ReportService : IReportService
         );
 
         return grouped;
+    }
+
+    
+    public async Task<TodaysReportCountDTO> GetTodaysReportCountAsync()
+    {
+        var today = DateTime.UtcNow.Date;
+        var tomorrow = today.AddDays(1);
+
+        var count = await _db.ProductScanReportLogs
+            .CountAsync(r => r.CreatedAt >= today && r.CreatedAt < tomorrow);
+
+        return new TodaysReportCountDTO
+        {
+            TotalReportsToday = count
+        };
     }
 }

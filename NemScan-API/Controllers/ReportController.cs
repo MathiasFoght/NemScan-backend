@@ -19,40 +19,46 @@ public class ReportController : ControllerBase
     [HttpPost("create")]
     public async Task<IActionResult> CreateReport([FromBody] ReportRequest request)
     {
+        if (string.IsNullOrWhiteSpace(request.ProductNumber))
+            return BadRequest("Product number is required");
+
         var success = await _reportService.CreateReportAsync(
-            request.ProductScanLogId,
             request.ProductNumber,
-            request.ReportType,
+            request.ProductName,
             request.UserRole
         );
 
         if (!success)
-            return NotFound("Scan log id ikke fundet");
-
+            return StatusCode(500, "Could not create report");
         return Ok("Rapport oprettet");
     }
 
     [Authorize(Policy = "EmployeeOnly")]
-    [HttpGet("error-patterns")]
-    public async Task<IActionResult> GetErrorPatterns([FromQuery] string language = "da")
+    [HttpGet("top-3-most-failed-products")]
+    public async Task<IActionResult> GetTop3MostReportedProducts()
     {
-        var data = await _reportService.GetErrorPatternsAsync(language);
+        var data = await _reportService.GetTop3MostReportedProductsAsync();
+        
+        if (data == null || data.Count == 0)
+            return NotFound("No reports found");
+        
         return Ok(data);
+    }
+    
+    [Authorize(Policy = "EmployeeOnly")]
+    [HttpGet("reports/count-today")]
+    public async Task<IActionResult> GetTodaysReportCount()
+    {
+        var count = await _reportService.GetTodaysReportCountAsync();
+        
+        return Ok(new { totalReportsToday = count });
     }
 
-    [Authorize(Policy = "EmployeeOnly")]
-    [HttpGet("top-3-most-failed-products")]
-    public async Task<IActionResult> GetTop3MostFailedProducts()
-    {
-        var data = await _reportService.GetTop3MostFailedProductsAsync();
-        return Ok(data);
-    }
 }
 
 public class ReportRequest
 {
-    public Guid ProductScanLogId { get; set; }
     public string ProductNumber { get; set; } = string.Empty;
-    public string ReportType { get; set; } = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
     public string UserRole { get; set; } = string.Empty;
 }

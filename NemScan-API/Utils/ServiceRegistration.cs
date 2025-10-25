@@ -3,10 +3,11 @@ using NemScan_API.Config;
 using NemScan_API.Interfaces;
 using NemScan_API.Logging.Consumers;
 using NemScan_API.Logging.Publisher;
+using NemScan_API.Services.AllProducts;
 using NemScan_API.Services.Amero;
 using NemScan_API.Services.Auth;
 using NemScan_API.Services.Employee;
-using NemScan_API.Services.Product;
+using NemScan_API.Services.ProductScan;
 using NemScan_API.Services.ProductCampaign;
 using NemScan_API.Services.Report;
 using NemScan_API.Services.Statistics;
@@ -33,17 +34,18 @@ public static class ServiceRegistration
         
         services.AddScoped<IProductEmployeeService, ProductEmployeeService>();
         
-        services.AddHttpClient<IProductImageService, ProductImageService>();
+        services.AddScoped<IProductImageService, ProductImageService>();
         
-        services.AddSingleton<IEmployeeService, EmployeeProfileService>();
+        services.AddScoped<IEmployeeService, EmployeeProfileService>();
         
         services.AddScoped<IStatisticsService, StatisticsService>();
         
         services.AddScoped<IProductCampaignService, ProductCampaignService>();
+
+        services.AddScoped<IProductAllProductsService, AllProductsServiceService>();
         
         services.AddScoped<IReportService, ReportService>();
-
-
+        
         
         services.Configure<RabbitMqConfig>(configuration.GetSection("RabbitMq"));
         services.AddSingleton<ILogEventPublisher, RabbitMqPublisher>();
@@ -51,5 +53,6 @@ public static class ServiceRegistration
         services.AddHostedService<AuthLogConsumer>();
         services.AddHostedService<EmployeeLogConsumer>();
         services.AddHostedService<ProductLogConsumer>();
+        services.AddHostedService<ReportLogConsumer>();
     }
 }

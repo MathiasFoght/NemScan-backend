@@ -15,7 +15,7 @@ public class EmployeeProfileService : IEmployeeService
         var containerName = config["AZURE_STORAGE_CONTAINER_NAME"];
 
         if (string.IsNullOrWhiteSpace(connectionString) || string.IsNullOrWhiteSpace(containerName))
-            throw new InvalidOperationException("Azure Storage config missing.");
+            throw new InvalidOperationException("Azure storage config missing");
 
         _container = new BlobContainerClient(connectionString, containerName);
         _container.CreateIfNotExists(PublicAccessType.Blob);

@@ -73,7 +73,9 @@ public class EmployeeLogConsumer : BackgroundService
                     
                     await db.SaveChangesAsync(stoppingToken);
                     Console.WriteLine("Saved to database successfully");
-
+                    
+                    Console.WriteLine($"Employee log saved for ({logEvent.EmployeeNumber}) ({logEvent.EventType})");
+                    
                     _channel?.BasicAck(ea.DeliveryTag, false);
                 }
                 catch (Exception ex)

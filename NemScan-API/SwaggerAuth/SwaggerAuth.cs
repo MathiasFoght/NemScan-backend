@@ -16,7 +16,7 @@ public static class SwaggerAuth
                 Scheme = "bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
-                Description = "Indsæt din JWT token her. Format: Bearer {token}"
+                Description = "Insert your JWT token here. Format: Bearer {token}"
             });
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement

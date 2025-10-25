@@ -36,32 +36,27 @@ public static class JwtAuthConfig
         
         services.AddAuthorization(options =>
         {
-            /*Vi har to sikkerhedsniveauer
-             1. user type
-             2. role
-            */
-            
-            // Både employees og customers
+            // Employees and customers
             options.AddPolicy("EmployeeOrCustomer", policy =>
                 policy.RequireAssertion(ctx =>
                     ctx.User.HasClaim("userType", "employee") ||
                     ctx.User.HasClaim("userType", "customer")));
 
-            // Kun employees (Ingen rolle krav)
+            // Only employees (No role required)
             options.AddPolicy("EmployeeOnly", policy =>
                 policy.RequireClaim("userType", "employee"));
 
-            // Kun Customers (Ingen rolle krav)
+            // Only Customers (No role required)
             options.AddPolicy("CustomerOnly", policy =>
                 policy.RequireClaim("userType", "customer"));
 
-            // Kun Admin
+            // Only Admin
             options.AddPolicy("AdminOnly", policy =>
                 policy.RequireAssertion(ctx =>
                     ctx.User.HasClaim("userType", "employee") &&
                     ctx.User.HasClaim("role", "Admin")));
 
-            // Kun Basic
+            // Only Basic
             options.AddPolicy("BasicOnly", policy =>
                 policy.RequireAssertion(ctx =>
                     ctx.User.HasClaim("userType", "employee") &&

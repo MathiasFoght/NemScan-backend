@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using NemScan_API.Interfaces;
 using NemScan_API.Models.DTO.Product;
 using NemScan_API.Models.Events;
-using NemScan_API.Utils;
 
 namespace NemScan_API.Controllers;
 
@@ -17,8 +16,7 @@ public class ProductController : ControllerBase
     private readonly ILogEventPublisher _logEventPublisher;
     private readonly IProductCampaignService _productCampaignService;
     private readonly IProductAllProductsService _productAllProductsService;
-    private readonly NemScanDbContext _db;
-
+    public record DeviceRequest(string DeviceId);
 
     public ProductController(
         IProductCustomerService customerService,
@@ -26,8 +24,7 @@ public class ProductController : ControllerBase
         IProductImageService productImageService,
         ILogEventPublisher logEventPublisher,
         IProductCampaignService productCampaignService,
-        IProductAllProductsService productAllProductsService,
-        NemScanDbContext db)
+        IProductAllProductsService productAllProductsService)
     {
         _customerService = customerService;
         _employeeService = employeeService;
@@ -35,12 +32,11 @@ public class ProductController : ControllerBase
         _logEventPublisher = logEventPublisher;
         _productCampaignService = productCampaignService;
         _productAllProductsService = productAllProductsService;
-        _db = db;
     }
     
     [Authorize(Policy = "CustomerOnly")]   
-    [HttpGet("customer/by-barcode/{barcode}")]
-    public async Task<IActionResult> GetProductForCustomer(string barcode)
+    [HttpPost("customer/by-barcode/{barcode}")]
+    public async Task<IActionResult> GetProductForCustomer(string barcode, [FromBody] DeviceRequest request)
     {
         var timestamp = DateTime.UtcNow;
         var product = await _customerService.GetProductByBarcodeAsync(barcode);
@@ -52,6 +48,7 @@ public class ProductController : ControllerBase
             scanLog = new ProductScanLogEvent
             {
                 Id = Guid.NewGuid(),
+                DeviceId = request.DeviceId,
                 ProductNumber = barcode,
                 Success = false,
                 UserRole = "customer",
@@ -63,7 +60,7 @@ public class ProductController : ControllerBase
             scanLog = new ProductScanLogEvent
             {
                 Id = Guid.NewGuid(),
-                DeviceId = product.DeviceId,
+                DeviceId = request.DeviceId,
                 ProductNumber = product.ProductNumber,
                 ProductName = product.ProductName,
                 ProductGroup = product.ProductGroup,
@@ -88,8 +85,8 @@ public class ProductController : ControllerBase
     }
 
     [Authorize(Policy = "EmployeeOnly")]
-    [HttpGet("employee/by-barcode/{barcode}")]
-    public async Task<IActionResult> GetProductForEmployee(string barcode)
+    [HttpPost("employee/by-barcode/{barcode}")]
+    public async Task<IActionResult> GetProductForEmployee(string barcode, [FromBody] DeviceRequest request)
     {
         var product = await _employeeService.GetProductByBarcodeAsync(barcode);
         var timestamp = DateTime.UtcNow;
@@ -101,6 +98,7 @@ public class ProductController : ControllerBase
             scanLog = new ProductScanLogEvent
             {
                 Id = Guid.NewGuid(),
+                DeviceId = request.DeviceId,
                 ProductNumber = barcode,
                 Success = false,
                 UserRole = "employee",
@@ -112,7 +110,7 @@ public class ProductController : ControllerBase
             scanLog = new ProductScanLogEvent
             {
                 Id = Guid.NewGuid(),
-                DeviceId = product.DeviceId,
+                DeviceId = request.DeviceId,
                 ProductNumber = product.ProductNumber,
                 ProductName = product.ProductName,
                 ProductGroup = product.ProductGroup,

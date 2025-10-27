@@ -159,8 +159,7 @@ public class ProductEmployeeService : IProductEmployeeService
                 }
             }
         }
-
-
+        
         // Get CurrentSalesPrice from product UID
         var priceUrl = $"https://api.flexpos.com/api/v1.0/product/{productUid}?fields=CurrentSalesPrice";
         var priceRequest = new HttpRequestMessage(HttpMethod.Get, priceUrl);
@@ -201,83 +200,6 @@ public class ProductEmployeeService : IProductEmployeeService
         
         // Return DTO
         return dto;
-    }
-    
-    public async Task<List<LowStockProductDTO>> GetLowStockProductsAsync(double minThreshold = 100)
-    {
-        var token = await _ameroAuthService.GetAccessTokenAsync();
-
-        var requestUrl =
-            $"https://api.flexpos.com/api/v1.0/product?offset=0&limit=500" +
-            $"&filters[CurrentStockQuantity][$lt]={minThreshold}" +
-            $"&fields=CurrentStockQuantity&fields=Number&fields=Name&fields=DisplayProductGroupUid";
-
-        var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        var response = await _httpClient.SendAsync(request);
-        if (!response.IsSuccessStatusCode)
-            return new List<LowStockProductDTO>();
-
-        var content = await response.Content.ReadAsStringAsync();
-        using var doc = JsonDocument.Parse(content);
-
-        if (!doc.RootElement.TryGetProperty("Items", out var items))
-            return new List<LowStockProductDTO>();
-
-        var lowStockProducts = new List<LowStockProductDTO>();
-
-        foreach (var item in items.EnumerateArray())
-        {
-            if (!item.TryGetProperty("CurrentStockQuantity", out var stockProp) ||
-                stockProp.ValueKind != JsonValueKind.Number)
-                continue;
-
-            var stock = stockProp.GetDecimal();
-
-            if (stock >= (decimal)minThreshold)
-                continue;
-
-            // UID for DisplayGroup
-            string? groupUid = null;
-            if (item.TryGetProperty("DisplayProductGroupUid", out var groupUidProp))
-                groupUid = groupUidProp.GetString();
-
-            string productGroupName = "Unknown";
-
-            // Get DisplayGroup name using groupUid
-            if (!string.IsNullOrEmpty(groupUid))
-            {
-                var groupUrl = $"https://api.flexpos.com/api/v2.0/display-group/{groupUid}?fields=Name";
-                var groupRequest = new HttpRequestMessage(HttpMethod.Get, groupUrl);
-                groupRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                var groupResponse = await _httpClient.SendAsync(groupRequest);
-                if (groupResponse.IsSuccessStatusCode)
-                {
-                    var groupContent = await groupResponse.Content.ReadAsStringAsync();
-                    using var groupDoc = JsonDocument.Parse(groupContent);
-
-                    if (groupDoc.RootElement.TryGetProperty("Name", out var nameProp))
-                        productGroupName = nameProp.GetString() ?? "Unknown";
-                }
-            }
-
-            var dto = new LowStockProductDTO
-            {
-                ProductNumber = item.GetProperty("Number").GetString() ?? "",
-                ProductName = item.GetProperty("Name").GetString() ?? "",
-                ProductGroup = productGroupName,
-                CurrentStockQuantity = stock
-            };
-
-            lowStockProducts.Add(dto);
-        }
-
-        return lowStockProducts
-            .OrderBy(p => p.CurrentStockQuantity)
-            .Take(5)
-            .ToList();
     }
 }
 

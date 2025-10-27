@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NemScan_API.Interfaces;
 using NemScan_API.Models.DTO.Product;
@@ -10,7 +12,9 @@ public class StatisticsService : IStatisticsService
 {
     private readonly NemScanDbContext _db;
     
-    private readonly IProductEmployeeService _productEmployeeService;
+    private readonly HttpClient _httpClient;
+    
+    private readonly IAmeroAuthService _ameroAuthService;
 
     private static readonly string[] _periods =
     {
@@ -22,11 +26,11 @@ public class StatisticsService : IStatisticsService
         "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
     };
 
-    public StatisticsService(NemScanDbContext db, IProductEmployeeService productEmployeeService)
+    public StatisticsService(NemScanDbContext db, HttpClient httpClient, IAmeroAuthService ameroAuthService)
     {
         _db = db;
-        _productEmployeeService = productEmployeeService;
-
+        _httpClient = httpClient;
+        _ameroAuthService = ameroAuthService;
     }
     
     public async Task<ScanPerformanceDTO> GetScanPerformanceAsync(DateTime? from = null, DateTime? to = null)
@@ -330,7 +334,78 @@ public class StatisticsService : IStatisticsService
     
     public async Task<List<LowStockProductDTO>> GetLowStockProductsAsync(double minThreshold = 100)
     {
-        return await _productEmployeeService.GetLowStockProductsAsync(minThreshold);
+        var token = await _ameroAuthService.GetAccessTokenAsync();
+
+        var requestUrl =
+            $"https://api.flexpos.com/api/v1.0/product?offset=0&limit=500" +
+            $"&filters[CurrentStockQuantity][$lt]={minThreshold}" +
+            $"&fields=CurrentStockQuantity&fields=Number&fields=Name&fields=DisplayProductGroupUid";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await _httpClient.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+            return new List<LowStockProductDTO>();
+
+        var content = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(content);
+
+        if (!doc.RootElement.TryGetProperty("Items", out var items))
+            return new List<LowStockProductDTO>();
+
+        var lowStockProducts = new List<LowStockProductDTO>();
+
+        foreach (var item in items.EnumerateArray())
+        {
+            if (!item.TryGetProperty("CurrentStockQuantity", out var stockProp) ||
+                stockProp.ValueKind != JsonValueKind.Number)
+                continue;
+
+            var stock = stockProp.GetDecimal();
+
+            if (stock >= (decimal)minThreshold)
+                continue;
+
+            // UID for DisplayGroup
+            string? groupUid = null;
+            if (item.TryGetProperty("DisplayProductGroupUid", out var groupUidProp))
+                groupUid = groupUidProp.GetString();
+
+            string productGroupName = "Unknown";
+
+            // Get DisplayGroup name using groupUid
+            if (!string.IsNullOrEmpty(groupUid))
+            {
+                var groupUrl = $"https://api.flexpos.com/api/v2.0/display-group/{groupUid}?fields=Name";
+                var groupRequest = new HttpRequestMessage(HttpMethod.Get, groupUrl);
+                groupRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                var groupResponse = await _httpClient.SendAsync(groupRequest);
+                if (groupResponse.IsSuccessStatusCode)
+                {
+                    var groupContent = await groupResponse.Content.ReadAsStringAsync();
+                    using var groupDoc = JsonDocument.Parse(groupContent);
+
+                    if (groupDoc.RootElement.TryGetProperty("Name", out var nameProp))
+                        productGroupName = nameProp.GetString() ?? "Unknown";
+                }
+            }
+
+            var dto = new LowStockProductDTO
+            {
+                ProductNumber = item.GetProperty("Number").GetString() ?? "",
+                ProductName = item.GetProperty("Name").GetString() ?? "",
+                ProductGroup = productGroupName,
+                CurrentStockQuantity = stock
+            };
+
+            lowStockProducts.Add(dto);
+        }
+
+        return lowStockProducts
+            .OrderBy(p => p.CurrentStockQuantity)
+            .ToList();
     }
     
     private static DateTime StartOfWeek(DateTime dt, DayOfWeek startOfWeek)

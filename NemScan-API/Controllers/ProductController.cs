@@ -175,7 +175,7 @@ public class ProductController : ControllerBase
         var campaigns = await _productCampaignService.GetAvailableCampaignsAsync();
 
         if (campaigns == null || campaigns.Count == 0)
-            return NotFound("Ingen produktkampagner fundet");
+            return NotFound("No campaigns found");
 
         return Ok(campaigns);
     }

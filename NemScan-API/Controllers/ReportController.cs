@@ -30,7 +30,7 @@ public class ReportController : ControllerBase
 
         if (!success)
             return StatusCode(500, "Could not create report");
-        return Ok("Rapport oprettet");
+        return Ok("Report created");
     }
 
     [Authorize(Policy = "EmployeeOnly")]

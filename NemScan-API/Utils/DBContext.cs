@@ -26,7 +26,33 @@ public class NemScanDbContext : DbContext
         modelBuilder.Entity<ProductScanLogEvent>()
             .Property(p => p.Timestamp)
             .HasConversion(dateTimeOffsetToUtcConverter);
-
+        
+        //Event: ProductScanLogEvent
+        modelBuilder.Entity<ProductScanLogEvent>()
+            .HasIndex(p => p.Timestamp)
+            .HasDatabaseName("IX_ProductScanLog_Timestamp");
+        
+        modelBuilder.Entity<ProductScanLogEvent>()
+            .HasIndex(p => new { p.Timestamp, p.ProductGroup })
+            .HasDatabaseName("IX_ProductScanLog_Timestamp_ProductGroup");
+        
+        modelBuilder.Entity<ProductScanLogEvent>()
+            .HasIndex(p => new { p.Timestamp, p.ProductNumber })
+            .HasDatabaseName("IX_ProductScanLog_Timestamp_ProductNumber");
+        
+        //Event: ProductScanReportLogEvent
+        modelBuilder.Entity<ProductScanReportLogEvent>()
+            .HasIndex(r => r.CreatedAt)
+            .HasDatabaseName("IX_ProductScanReport_CreatedAt");
+        
+        modelBuilder.Entity<ProductScanReportLogEvent>()
+            .HasIndex(r => new { r.ProductNumber, r.ProductName })
+            .HasDatabaseName("IX_ProductScanReport_ProductNumber_ProductName");
+        
+        modelBuilder.Entity<ProductScanReportLogEvent>()
+            .HasIndex(r => new { r.CreatedAt, r.ProductNumber })
+            .HasDatabaseName("IX_ProductScanReport_CreatedAt_ProductNumber");
+        
         base.OnModelCreating(modelBuilder);
     }
 

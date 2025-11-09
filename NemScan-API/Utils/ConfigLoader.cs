@@ -16,9 +16,11 @@ public static class ConfigLoader
         builder.Configuration["AmeroAuth:ApiKey"] = Environment.GetEnvironmentVariable("AMERO_API_KEY");
         builder.Configuration["AmeroAuth:Audience"] = Environment.GetEnvironmentVariable("AMERO_AUDIENCE");
         builder.Configuration["AmeroAuth:Scope"] = Environment.GetEnvironmentVariable("AMERO_SCOPE");
+        
+        builder.Configuration["AmeroAuth:AccessTokenExpiryMinutes"] = Environment.GetEnvironmentVariable("AMERO_ACCESS_TOKEN_EXPIRY_MINUTES");
+        builder.Configuration["AmeroAuth:RefreshTokenExpiryDays"] = Environment.GetEnvironmentVariable("AMERO_REFRESH_TOKEN_EXPIRY_DAYS");
 
         builder.Configuration["AZURE_POSTGRES_CONNECTION"] = Environment.GetEnvironmentVariable("AZURE_POSTGRES_CONNECTION");
-        
         builder.Configuration["AZURE_STORAGE_CONNECTION"] = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION");
         builder.Configuration["AZURE_STORAGE_CONTAINER_NAME"] = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONTAINER_NAME");
         

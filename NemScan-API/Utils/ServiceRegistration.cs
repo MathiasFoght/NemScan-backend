@@ -18,35 +18,38 @@ public static class ServiceRegistration
 {
     public static void RegisterAppServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<AmeroAuthConfig>(options =>
+        {
+            var section = configuration.GetSection("AmeroAuth");
+            section.Bind(options);
+
+            options.AccessTokenExpiryMinutes = section.GetValue<int?>("AccessTokenExpiryMinutes") ?? 15; 
+            options.RefreshTokenExpiryDays = section.GetValue<int?>("RefreshTokenExpiryDays") ?? 7;
+        });
+
+
         services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
-        services.Configure<AmeroAuthConfig>(configuration.GetSection("AmeroAuth"));
         
         var connectionString = configuration["AZURE_POSTGRES_CONNECTION"];
         services.AddDbContext<NemScanDbContext>(options => options.UseNpgsql(connectionString));
 
         services.AddScoped<IAuthService, AuthService>();
-        
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-        services.AddHttpClient<IAmeroAuthService, AmeroAuthService>();
+        services.AddHttpClient("AmeroAuth")
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+        services.AddScoped<IAmeroAuthService, AmeroAuthService>();
 
         services.AddScoped<IProductCustomerService, ProductCustomerService>();
-        
         services.AddScoped<IProductEmployeeService, ProductEmployeeService>();
-        
         services.AddScoped<IProductImageService, ProductImageService>();
-        
         services.AddScoped<IEmployeeService, EmployeeProfileService>();
-        
         services.AddScoped<IStatisticsService, StatisticsService>();
-        
         services.AddScoped<IProductCampaignService, ProductCampaignService>();
-
         services.AddScoped<IProductAllProductsService, AllProductsServiceService>();
-        
         services.AddScoped<IReportService, ReportService>();
-        
-        
+
         services.Configure<RabbitMqConfig>(configuration.GetSection("RabbitMq"));
         services.AddSingleton<ILogEventPublisher, RabbitMqPublisher>();
         

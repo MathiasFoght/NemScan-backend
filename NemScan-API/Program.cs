@@ -2,6 +2,7 @@ using NemScan_API.SwaggerAuth;
 using NemScan_API.RateLimit;
 using NemScan_API.Utils;
 
+DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.LoadEnvironmentVariables();

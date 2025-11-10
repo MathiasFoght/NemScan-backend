@@ -20,7 +20,8 @@ public class AmeroAuthService : IAmeroAuthService, IDisposable
 
     public AmeroAuthService(
         IOptions<AmeroAuthConfig> config, 
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory
+    )
     {
         _config = config.Value;
         _httpClientFactory = httpClientFactory;

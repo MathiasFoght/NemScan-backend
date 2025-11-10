@@ -27,20 +27,18 @@ public static class ServiceRegistration
             options.RefreshTokenExpiryDays = section.GetValue<int?>("RefreshTokenExpiryDays") ?? 7;
         });
 
-
-        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        services.AddHttpClient("AmeroAuth")
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
         
         var connectionString = configuration["AZURE_POSTGRES_CONNECTION"];
         services.AddDbContext<NemScanDbContext>(options => options.UseNpgsql(connectionString));
-
+        
+        services.AddSingleton<IAmeroAuthService, AmeroAuthService>();
+        
+        services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
-
-        services.AddHttpClient("AmeroAuth")
-            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
-
-        services.AddScoped<IAmeroAuthService, AmeroAuthService>();
-
+        
         services.AddScoped<IProductCustomerService, ProductCustomerService>();
         services.AddScoped<IProductEmployeeService, ProductEmployeeService>();
         services.AddScoped<IProductImageService, ProductImageService>();

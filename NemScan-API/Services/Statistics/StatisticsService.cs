@@ -83,7 +83,7 @@ public class StatisticsService : IStatisticsService
             .GroupBy(p => p.ProductGroup)
             .Select(g => new ProductGroupDistributionDTO
             {
-                ProductGroup = g.Key ?? "Andet",
+                ProductGroup = g.Key ?? "Other",
                 ScanCount = g.Count()
             })
             .OrderByDescending(x => x.ScanCount)
@@ -94,7 +94,7 @@ public class StatisticsService : IStatisticsService
             x.Percentage = total == 0 ? 0 : Math.Round((double)x.ScanCount / total * 100, 1)
         );
 
-        // Mindre kategorier (bortset fra de 5 største) samles under "Andre"
+        // Mindre kategorier (bortset fra de 5 største) samles under "Other"
         if (grouped.Count > 6)
         {
             var top = grouped.Take(5).ToList();

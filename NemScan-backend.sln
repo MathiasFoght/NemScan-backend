@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NemScan-API", "NemScan-API\NemScan-API.csproj", "{44EC9F17-2179-4D5E-9150-E0323727E1A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NemScan-API.Tests", "NemScan-API.Tests\NemScan-API.Tests.csproj", "{669F238F-C67D-4030-AC75-C663137950DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{44EC9F17-2179-4D5E-9150-E0323727E1A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44EC9F17-2179-4D5E-9150-E0323727E1A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44EC9F17-2179-4D5E-9150-E0323727E1A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{669F238F-C67D-4030-AC75-C663137950DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{669F238F-C67D-4030-AC75-C663137950DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{669F238F-C67D-4030-AC75-C663137950DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{669F238F-C67D-4030-AC75-C663137950DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -96,7 +96,6 @@ public class AuthControllerTests
 
         Assert.That(result, Is.Not.Null);
 
-        // Extract using reflection (most stable)
         var value = result!.Value!;
         var token = value.GetType().GetProperty("Token")!.GetValue(value) as string;
 

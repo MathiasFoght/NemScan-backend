@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NemScan_API.Config;
 using NemScan_API.Interfaces;
 using NemScan_API.Logging.Consumers;
 using NemScan_API.Logging.Publisher;
+using NemScan_API.Models.Auth;
 using NemScan_API.Services.AllProducts;
 using NemScan_API.Services.Amero;
 using NemScan_API.Services.Auth;
@@ -36,6 +38,7 @@ public static class ServiceRegistration
         services.AddSingleton<IAmeroAuthService, AmeroAuthService>();
         
         services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+        services.AddScoped<IPasswordHasher<Employee>, PasswordHasher<Employee>>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         

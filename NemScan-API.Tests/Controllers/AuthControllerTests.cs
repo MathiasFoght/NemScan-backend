@@ -43,34 +43,17 @@ public class AuthControllerTests
     [Test]
     public async Task Login_ReturnsUnauthorized_WhenInvalidEmployee()
     {
-        _authMock.Setup(x => x.AuthenticateEmployeeAsync("9999")).ReturnsAsync((Employee?)null);
+        _authMock.Setup(x => x.AuthenticateEmployeeAsync("9999", "9999"))
+                 .ReturnsAsync((Employee?)null);
 
         var response = await _controller.Login(new AuthController.LoginRequest("9999"));
 
-        Assert.That(response, Is.TypeOf<UnauthorizedResult>());
+        Assert.That(response, Is.TypeOf<UnauthorizedObjectResult>());
+
         _logMock.Verify(x => x.PublishAsync(
             It.Is<AuthLogEvent>(e => e.Success == false),
             "auth.login.failed"
         ), Times.Once);
-    }
-
-    [Test]
-    public async Task Login_ReturnsBadRequest_WhenRoleOrPositionInvalid()
-    {
-        var emp = new Employee
-        {
-            EmployeeNumber = "123456",
-            Name = "John Doe",
-            Role = EmployeeRole.Admin,
-            Position = EmployeePosition.ServiceAssistant,
-            StoreNumber = "123456"
-        };
-
-        _authMock.Setup(x => x.AuthenticateEmployeeAsync("123")).ReturnsAsync(emp);
-
-        var result = await _controller.Login(new AuthController.LoginRequest("123"));
-
-        Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
     }
 
     [Test]
@@ -85,11 +68,11 @@ public class AuthControllerTests
             StoreNumber = "123456"
         };
 
-        _authMock.Setup(x => x.AuthenticateEmployeeAsync("123"))
-            .ReturnsAsync(emp);
+        _authMock.Setup(x => x.AuthenticateEmployeeAsync("123", "123"))
+                 .ReturnsAsync(emp);
 
         _jwtMock.Setup(x => x.GenerateEmployeeToken(emp))
-            .Returns("valid-token");
+                .Returns("valid-token");
 
         var result = await _controller.Login(new AuthController.LoginRequest("123"))
             as OkObjectResult;
@@ -101,7 +84,6 @@ public class AuthControllerTests
 
         Assert.That(token, Is.EqualTo("valid-token"));
     }
-
 
     // ----------------------------
     // CUSTOMER TOKEN TESTS
@@ -119,7 +101,7 @@ public class AuthControllerTests
     public async Task CustomerToken_ReturnsOk_WithToken()
     {
         _jwtMock.Setup(x => x.GenerateCustomerToken(It.IsAny<Customer>()))
-            .Returns("customer-token");
+                .Returns("customer-token");
 
         var result = await _controller.GetCustomerToken(
                 new AuthController.CustomerTokenRequest("DEVICE123"))

@@ -21,6 +21,8 @@ public class Employee
     
     public string EmployeeNumber { get; set; } = string.Empty;
     
+    public string? PasswordHash { get; set; }
+    
     public string Name { get; set; } = string.Empty;
     
     public EmployeeRole Role { get; set; } = EmployeeRole.Basic;

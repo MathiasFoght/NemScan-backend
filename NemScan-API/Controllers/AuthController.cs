@@ -30,51 +30,52 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.EmployeeNumber))
+        if (request == null || string.IsNullOrWhiteSpace(request.EmployeeNumber))
             return BadRequest("Employee number is required");
 
-        var user = await _authService.AuthenticateEmployeeAsync(request.EmployeeNumber);
-        if (user == null)
+        var employeeNumber = request.EmployeeNumber.Trim();
+
+        var user = await _authService.AuthenticateEmployeeAsync(employeeNumber, employeeNumber);
+
+        if (user == null || !user.IsValidPosition())
         {
+            await Task.Delay(300);
+
             await _logEventPublisher.PublishAsync(new AuthLogEvent
             {
                 EventType = "auth.login.failed",
-                EmployeeNumber = request.EmployeeNumber,
+                EmployeeNumber = employeeNumber,
                 Success = false,
                 Message = "Invalid employee number entered"
             }, "auth.login.failed");
-            
-            return Unauthorized();
+
+            return Unauthorized("Invalid credentials");
         }
 
-        if (!user.IsValidPosition())
-            return BadRequest("Invalid role/position combination.");
-        
         var token = _jwtTokenService.GenerateEmployeeToken(user);
-        
+
         await _logEventPublisher.PublishAsync(new AuthLogEvent
         {
             EventType = "auth.login.success",
-            EmployeeNumber = request.EmployeeNumber,
+            EmployeeNumber = employeeNumber,
             Success = true,
             Message = $"Employee ({user.Name}) login successful"
         }, "auth.login.success");
 
-        var userDto = new EmployeeLoginDTO
-        {
-            EmployeeNumber = user.EmployeeNumber,
-            Name = user.Name,
-            Role = user.Role.ToString(),
-            Position = user.Position.ToString(),
-            StoreNumber = user.StoreNumber,
-        };
-
         return Ok(new
         {
-            Employee = userDto,
-            Token = token,
+            Employee = new EmployeeLoginDTO
+            {
+                EmployeeNumber = user.EmployeeNumber,
+                Name = user.Name,
+                Role = user.Role.ToString(),
+                Position = user.Position.ToString(),
+                StoreNumber = user.StoreNumber
+            },
+            Token = token
         });
     }
+
     
     [HttpPost("customerToken")]
     [AllowAnonymous]

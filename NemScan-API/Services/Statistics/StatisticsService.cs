@@ -280,6 +280,7 @@ public class StatisticsService : IStatisticsService
             };
         }
 
+        // Group by day of month
         var dailyCounts = logs
             .GroupBy(p => TimeZoneInfo.ConvertTime(p.Timestamp, copenhagenZone).Date)
             .Select(g => new
@@ -293,6 +294,7 @@ public class StatisticsService : IStatisticsService
         // Rolling average med et vindue på 7 dage
         var rollingAverage = new List<WeeklyScanTrendDTO>();
 
+        // Loop through each day in the month
         for (int i = 0; i < dailyCounts.Count; i++)
         {
             var window = dailyCounts
@@ -316,7 +318,7 @@ public class StatisticsService : IStatisticsService
                 }
                 avg = weighted / totalWeight;
             }
-
+            
             rollingAverage.Add(new WeeklyScanTrendDTO
             {
                 DayOrDate = dailyCounts[i].Date.ToString("dd MMM", new System.Globalization.CultureInfo("da-DK")),
@@ -328,7 +330,7 @@ public class StatisticsService : IStatisticsService
         return new WeeklyScanTrendResponse
         {
             PeriodType = "month",
-            Trend = rollingAverage
+            Trend = rollingAverage  
         };
     }
     

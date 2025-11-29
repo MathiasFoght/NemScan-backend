@@ -32,10 +32,15 @@
         <_ContentIncludedByDefault Remove="publish\appsettings.json" />
         <_ContentIncludedByDefault Remove="publish\NemScan-API.deps.json" />
         <_ContentIncludedByDefault Remove="publish\NemScan-API.runtimeconfig.json" />
+        <_ContentIncludedByDefault Remove="publish\package-lock.json" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Update="Microsoft.EntityFrameworkCore.Relational" Version="9.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include=".github\workflows\ci.yml" />
     </ItemGroup>
 
 </Project>

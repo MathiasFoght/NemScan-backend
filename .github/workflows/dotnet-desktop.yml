@@ -46,18 +46,3 @@ jobs:
           path: |
             **/TestResults/*.trx
             **/TestResults/*.xml
-
-      - name: Generate coverage report
-        uses: danielpalme/ReportGenerator-GitHubAction@5.1.25
-        if: always()
-        with:
-          reports: '**/coverage*.xml'
-          targetdir: 'coverage-report'
-          reporttypes: 'HtmlInline_AzurePipelines;Cobertura;Badges'
-
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: coverage-report
